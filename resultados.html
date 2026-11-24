@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Baya · Resultados</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..600&family=Manrope:wght@400..700&display=swap">
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#08090A;color:#F4F4F1;font-family:'Manrope',system-ui,sans-serif;display:flex;flex-direction:column;justify-content:center;padding:10vh 8vw}
+.mono{font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#8A8D93;margin:0}
+h1{font-family:'Unbounded',system-ui,sans-serif;font-weight:400;font-size:clamp(32px,4.6vw,88px);letter-spacing:-.02em;margin:3vh 0 8vh;text-wrap:balance}
+.rb{display:grid;grid-template-columns:minmax(120px,240px) 1fr 90px;gap:3vw;align-items:center;padding:3vh 0;border-top:1px solid #23252A}
+.nm b{display:block;font-family:'Unbounded',system-ui,sans-serif;font-weight:400;font-size:clamp(18px,1.8vw,32px)}.nm span{color:#8A8D93;font-size:14px}
+.tr{height:10px;border-radius:99px;background:#1C1E22;overflow:hidden}.tr i{display:block;height:100%;width:0;background:#9A9DA3;border-radius:99px;transition:width 1.2s cubic-bezier(.2,.7,.1,1)}
+.win .tr i{background:#FEC204}.pc{font-size:clamp(20px,2vw,36px);text-align:right;font-variant-numeric:tabular-nums}
+#tot{margin-top:6vh}</style></head><body>
+<p class="mono">Baya · Resultados</p><h1>A trama escolhida.</h1>
+<div id="bars"></div><p class="mono" id="tot">Carregando…</p>
+<script>
+const K=[['bayer','Ponto cruz'],['lacada','Laçada'],['ninho','Ninho']];const bars=document.getElementById('bars'),tot=document.getElementById('tot');
+K.forEach(([k,n])=>{const r=document.createElement('div');r.className='rb';r.dataset.k=k;r.innerHTML='<div class="nm"><b></b><span>0 votos</span></div><div class="tr"><i></i></div><div class="pc">—</div>';r.querySelector('b').textContent=n;bars.appendChild(r)});
+let API='';
+async function load(){try{if(!API){const r=await fetch('api.txt',{cache:'no-store'});if(r.ok)API=(await r.text()).trim()}
+ if(!/^https:\/\/script\.google\.com\//.test(API)){tot.textContent='A votação ainda não abriu.';return}
+ const c=await (await fetch(API)).json();const n=K.reduce((a,[k])=>a+(+c[k]||0),0);const mx=Math.max(...K.map(([k])=>+c[k]||0));
+ K.forEach(([k])=>{const v=+c[k]||0,p=n?Math.round(v/n*100):0;const row=bars.querySelector('[data-k='+k+']');row.querySelector('i').style.width=p+'%';row.querySelector('.pc').textContent=p+'%';row.querySelector('span').textContent=v+(v===1?' voto':' votos');row.classList.toggle('win',n>0&&v===mx)});
+ tot.textContent=n?(n+(n===1?' voto':' votos')+' · atualiza sozinho'):'Ainda sem votos.'}catch(e){tot.textContent='Não foi possível carregar agora.'}}
+load();setInterval(load,6000);
+</script></body></html>
