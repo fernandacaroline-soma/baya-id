@@ -1241,7 +1241,7 @@ ST.k4_up=Object.assign({},ST.k4_cont,{prog:ST.k4_cont.prog.map(b=>b.map(([r,c])=
 ST.k4_sus={bpm:118,gain:3.4,sync:60/118*4,prog:[[[47,[64,66,71]]],[[47,[63,66,71]]],[[45,[64,69,71]]],[[47,[64,66,71]]]],
  step(H,bar,s,t,root,ch,half,E){if(s%2===0){const e=s/2;H.kal(e%2?ch[1]+12:ch[0]+12,t,.016+(bar%4)*.003)}if(s===0||s===3)H.drum(t,s?.09:.14,'lo');if(s%4===2)H.tick(t,.012);if(s===0&&bar%4===0){H.riser(t,E*64,.022);H.bass(root,t,E*60,.14)}}};
 // votação: calma, sem pulso de relógio, acordes suspensos que flutuam (um toque de suspense, sem pressa)
-ST.k4_vote={bpm:64,gain:4,prog:[[[40,[64,66,71]]],[[45,[64,69,71]]],[[37,[63,68,71]]],[[45,[64,66,69]]]],
+ST.k4_vote={bpm:78,gain:4,prog:[[[40,[64,66,71]]],[[45,[64,69,71]]],[[37,[63,68,71]]],[[45,[64,66,69]]]],
  step(H,bar,s,t,root,ch,half,E){if(s===0)H.bass(root,t,E*15,.12);const A={0:ch[0]+12,4:ch[2],8:ch[1]+12,12:ch[2]+12};if(A[s]!=null&&(s===0||Math.random()<.8))H.kal(A[s],t,.022);if(s===10&&bar%2===1)H.kal(ch[2]+24,t,.014);if(s===0&&bar%4===0)H.breeze(t,E*60,.006)}};
 function makeEngine(C,out,ST1){
  const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=115;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
@@ -1322,7 +1322,7 @@ let userVol=false;const effVol=()=>userVol?uv:((onFirst()&&!ducked)?.5:.3);funct
 rng.addEventListener('input',()=>{setVol(rng.value/100)});rng.addEventListener('pointerdown',e=>e.stopPropagation());
 window.__bayaVolStep=d=>{if(!started){start();if(ac&&ac.state==='suspended')ac.resume()}setVol(Math.round((effVol()+d)*20)/20)};
 function toggle(){if(!started){muted=false;start();if(ac&&ac.state==='suspended')ac.resume();return}muted=!muted;if(!muted&&ac.state==='suspended')ac.resume();upd()}
-btn.addEventListener('click',e=>{e.stopPropagation();toggle()});
+btn.addEventListener('click',e=>{e.stopPropagation();toggle()});const syncRng=()=>{if(!userVol)rng.value=Math.round(effVol()*100)};syncRng();addEventListener('scroll',syncRng,{passive:true});
 famBtn.textContent=FAM==='bossa'?'Bossa':'Kalimba';famBtn.addEventListener('click',e=>{e.stopPropagation();window.__bayaFam(FAM==='bossa'?'kalimba':'bossa')});famBtn.addEventListener('pointerdown',e=>e.stopPropagation());window.__bayaSomToggle=toggle;window.__bayaSom='idle';btn.classList.add('off');
 window.__bayaSomRender=async(s,k)=>{const C=new OfflineAudioContext(2,44100*s,44100);const g=C.createGain();g.gain.value=VOL;const cp=C.createDynamicsCompressor();cp.threshold.value=-18;cp.ratio.value=3;g.connect(cp);cp.connect(C.destination);const en=makeEngine(C,g,ST[k||PICK]);en.tick(0,s-.5);const buf=await C.startRendering();return buf};
 // começa no primeiro gesto da pessoa (clique ou tecla), se estiver na abertura
