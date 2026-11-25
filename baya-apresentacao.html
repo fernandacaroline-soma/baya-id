@@ -1332,7 +1332,7 @@ function start(){if(started)return;started=true;const C=window.AudioContext||win
    if(v>0||e.g.gain.value>.004)e.eng.tick(ac.currentTime,.25);else e.eng.reset()}upd()},60);upd(true)}
 function anyOn(){const T=targets();return Object.keys(T).length>0}
 function upd(){if(!ac)return;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(muted?0:VOL*effVol()*2,ac.currentTime,.3);btn.classList.toggle('off',muted||!started);wrap.classList.toggle('hid',!anyOn()&&!muted);rng.value=Math.round(effVol()*100);window.__bayaVol=Math.round(effVol()*100);window.__bayaSom=!started?'idle':(muted?'off':'on')}
-let userVol=false;const effVol=()=>userVol?uv:((onFirst()&&!ducked)?.4:.2);function setVol(x){userVol=true;uv=Math.max(0,Math.min(1,x));if(uv>0&&muted)muted=false;upd()}
+let userVol=false;const effVol=()=>userVol?uv:((onFirst()&&!ducked)?.4:.15);function setVol(x){userVol=true;uv=Math.max(0,Math.min(1,x));if(uv>0&&muted)muted=false;upd()}
 rng.addEventListener('input',()=>{setVol(rng.value/100)});rng.addEventListener('pointerdown',e=>e.stopPropagation());
 window.__bayaVolStep=d=>{if(!started){start();if(ac&&ac.state==='suspended')ac.resume()}setVol(Math.round((effVol()+d)*20)/20)};
 function toggle(){if(!started){muted=false;start();if(ac&&ac.state==='suspended')ac.resume();return}muted=!muted;if(!muted&&ac.state==='suspended')ac.resume();upd()}
