@@ -758,7 +758,7 @@ function brandMark(c,x,w,h,k,now,p){const N=['FARM','NV','ANIMALE'],D=3400,ti=no
  x.clearRect(0,0,w,h);x.globalAlpha=.1;x.drawImage(c._o,0,0,w,h);x.globalAlpha=a;x.drawImage(c._m,0,0,w,h);x.globalAlpha=1;
  const bt=now/1000,tt=bt*.35,mn=Math.min(w,h);x.save();x.globalCompositeOperation='destination-out';[[.9,.7,0,.28],[.6,1.1,2,.22],[1.3,.5,4,.25],[.45,.8,1,.2]].forEach(([q,r,p2,rr])=>{const cx=w*(.5+.46*Math.sin(tt*q+p2)),cy=h*(.5+.46*Math.cos(tt*r+p2*1.3)),R=mn*rr*(.6+.9*(.5+.5*Math.sin(bt*.9+p2*1.7)));const g=x.createRadialGradient(cx,cy,0,cx,cy,R);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(.55,'rgba(0,0,0,.9)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(cx-R,cy-R,R*2,R*2)});x.restore()}
 function drawLac(x,w,h,t,opt){const c=opt.c||40,r=c/2,rib=Math.max(2.2,c*.1);x.fillStyle=opt.bg;x.fillRect(0,0,w,h);x.lineCap='butt';const R=rng(7);const cols=Math.ceil(w/c)+1,rows=Math.ceil(h/c)+1;
- const c0=opt.c0||0,r1=opt.r1||1e9;for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){if(i<c0||j>=r1)continue;const o=R()<.5,ink=opt.inks[(R()*opt.inks.length)|0],yl=(i*7+j*13)%151==0;const ph=(t-(i+j)*.09);const k=((ph%6)+6)%6;let ang=0;if(!RM){if(k<1)ang=ease(k)*90;else if(k<3)ang=90;else if(k<4)ang=90+ease(k-3)*90;else ang=180}
+ const c0=opt.c0||0,r1=opt.r1||1e9;for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){if(i<c0||j>=r1)continue;const o=R()<.5,ink=opt.inks[(R()*opt.inks.length)|0],yl=(i*7+j*13)%151==0;const ph=(t-(i+j)*.015);const k=((ph%6)+6)%6;let ang=0;if(!RM){if(k<1)ang=ease(k)*90;else if(k<3)ang=90;else if(k<4)ang=90+ease(k-3)*90;else ang=180}
   x.save();x.translate(i*c+r,j*c+r);x.rotate(ang*Math.PI/180);x.translate(-r,-r);const p=new Path2D();if(o){p.arc(0,0,r,0,Math.PI/2);p.moveTo(c,r+0);p.arc(c,c,r,-Math.PI/2,Math.PI,true)}else{p.arc(c,0,r,Math.PI,Math.PI/2,true);p.moveTo(r,c);p.arc(0,c,r,0,-Math.PI/2,true)}
   x.strokeStyle=yl?'#FEC204':ink;x.lineWidth=rib;x.stroke(p);x.restore()}}
 // ---- sections
@@ -850,7 +850,7 @@ function frame(now){
   else if(k==='ninho'){const key=w+'x'+h;if(!c._L||c._k!==key){const pth=[];const sd=+c.dataset.seed;for(let X=-60;X<=w+60;X+=10)pth.push([X,h*.5+Math.sin(X/w*Math.PI*1.6+sd)*h*.22]);c._L=strands(pth,Math.min(h*.2,60),Math.round(w*1.6+h),31+sd,[8,20]);c._k=key}x.clearRect(0,0,w,h);drawStr(x,c._L,Math.round(ease(p)*c._L.length),1.3);softEdges(x,w,h,c)}});
 
  // cena: ponto cruz — pássaro e outras possibilidades guiadas pelo scroll
- document.querySelectorAll('[data-scene]').forEach(sec=>{if(!vis(sec))return;const c=sec.querySelector('canvas');const [x,w,h]=fit(c);const r=sec.getBoundingClientRect();if(r.top>innerHeight*.9)sec._t0=null;if(sec._t0==null&&r.top<innerHeight*.8)sec._t0=now;const tt=sec._t0==null?0:(now-sec._t0)%25400;const p=clamp((tt<6400?tt/6400:1+(tt-6400)/3200)/6);const nm=stitchScene(x,w,h,p,now);if(c.dataset.fade)fadeLeft(x,w,h,.16);const cp=sec.querySelector('.cp');if(cp&&cp.textContent!==nm)cp.textContent=nm});
+ document.querySelectorAll('[data-scene]').forEach(sec=>{if(!vis(sec))return;const c=sec.querySelector('canvas');const [x,w,h]=fit(c);const r=sec.getBoundingClientRect();if(r.top>innerHeight*.9)sec._t0=null;if(sec._t0==null&&r.top<innerHeight*.8)sec._t0=Math.ceil(now/3200)*3200;const tt=sec._t0==null||now<sec._t0?0:(now-sec._t0)%25600;const p=clamp((tt<6400?tt/6400:1+(tt-6400)/3200)/6);const nm=stitchScene(x,w,h,p,now);if(c.dataset.fade)fadeLeft(x,w,h,.16);const cp=sec.querySelector('.cp');if(cp&&cp.textContent!==nm)cp.textContent=nm});
  // conceito: historias
  document.querySelectorAll('[data-story]').forEach(sec=>{if(!vis(sec))return;const k=sec.dataset.story;const pr=prog(sec);const st0=sec.querySelectorAll('.step');const idx=Math.min(st0.length-1,Math.floor(pr*st0.length*0.999));if(sec._pp==null||Math.abs(sec._pp-pr)>.6)sec._pp=pr;sec._pp+=(pr-sec._pp)*.045;const p=sec._pp;const c=sec.querySelector('canvas');const [x,w,h]=fit(c);
   const st=st0;st.forEach((e,i)=>e.classList.toggle('cur',i===idx));
@@ -948,7 +948,7 @@ function finAnim(c,k,now){const [x,w,h]=fit(c);if(w<10)return;const st=c._fs||(c
   for(let j=0;j*cs<h+cs;j++)for(let i=0;i*cs<w+cs;i++){const px=i*cs,py=j*cs,cx=px+r,cy=py+r;const base=R()<.5,ink=R(),yl=R()<.03;
    const d1=Math.hypot(cx,cy)/D,d2=Math.hypot(w-cx,h-cy)/D,dc=Math.min(d1,d2);const wave=.5+.5*Math.sin(now/2400-dc*9);const reach=.32+.04*Math.sin(now/3100);
    const f=clamp((reach-dc)/.16);if(f<=0)continue;
-   const ph=now/3000-(i+j)*.11+ink*3,stp=Math.floor(ph),fr=ph-stp,rk=fr<.55?0:(fr-.55)/.45,rot=(stp+(rk<.5?4*rk*rk*rk:1-Math.pow(-2*rk+2,3)/2)+(base?1:0))*Math.PI/2;
+   const ph=now/3000-(i+j)*.015+ink*3,stp=Math.floor(ph),fr=ph-stp,rk=fr<.45?fr/.45:1,rot=(stp+(rk<.5?4*rk*rk*rk:1-Math.pow(-2*rk+2,3)/2)+(base?1:0))*Math.PI/2;
    x.globalAlpha=f*(.55+.45*wave);x.strokeStyle=yl?'#FEC204':INK[Math.min(3,Math.floor((1-dc/reach)*3+ink*1.2))];x.lineWidth=cs*(.1+.08*f);
    x.save();x.translate(cx,cy);x.rotate(rot);x.beginPath();x.arc(-r,-r,r,0,Math.PI/2);x.moveTo(r,0);x.arc(r,r,r,-Math.PI/2,-Math.PI,true);x.stroke();x.restore()}
   x.globalAlpha=1}
@@ -958,7 +958,7 @@ function finAnim(c,k,now){const [x,w,h]=fit(c);if(w<10)return;const st=c._fs||(c
    const wave=k2=>{const b=k2%4,yb=[.1,.19,.81,.9][b];return{u:R(),yb,amp:.035+R()*.02,j:(R()-.5)*.018}};
    const spir=k2=>{const sd=k2%2,t=R(),a=t*Math.PI*6,rr=t*Math.min(w,h)*.2;return{sd,a,rr,j:(R()-.5)*8}};
    st.F=[];for(let k2=0;k2<n;k2++)st.F.push({s0:free(),s2:free(),s4:free(),r:ring(k2),wv:wave(k2),sp:spir(k2),L:7+R()*10,c:FIB[(R()*FIB.length)|0],d:R()*.35,b:(R()-.5)*5});st.Fk=key;st.t0=now}
-  const SEG=5600,NS=2,tt=(now-st.t0)/SEG,si=Math.floor(tt)%NS,fr=tt-Math.floor(tt);
+  const SEG=5600,NS=2,tt=now/SEG,si=Math.floor(tt)%NS,fr=tt-Math.floor(tt);
   const pos=(F,k2)=>{switch(k2){case 0:{const p0=F.s0;return[p0[0]+Math.sin(now/2300+p0[1]/120)*26,p0[1]+Math.cos(now/2700+p0[0]/140)*20,p0[2]]}case 1:{const dx=F.r[0]-w/2,dy=(F.r[1]-h/2)*w/h,a=Math.atan2(dy,dx)+now/5200,rr=Math.hypot(dx,dy);return[w/2+Math.cos(a)*rr,h/2+Math.sin(a)*rr*h/w,a+Math.PI/2]}case 2:return F.s2;
    case 3:{const W=F.wv,X=((W.u+now/26000)%1)*w*1.1-w*.05;return[X,h*(W.yb+W.j)+Math.sin(X/w*Math.PI*4+now/1300+W.yb*9)*h*W.amp,Math.atan(Math.cos(X/w*Math.PI*4+now/1300+W.yb*9)*h*W.amp*Math.PI*4/w)]}
    case 4:return F.s4;default:{const S=F.sp,cx=S.sd?w*.88:w*.12,a=S.a+now/3200*(S.sd?1:-1);return[cx+Math.cos(a)*S.rr+S.j,h*.5+Math.sin(a)*S.rr*1.25+S.j,a+Math.PI/2]}}};
@@ -1193,7 +1193,7 @@ ST.k2_ninho=KS({bpm:100,nat:1,lead:'kal',prog:[[[40,[64,68,71]]],[[45,[64,69,73]
  mel:[[[0,80,2],[2,83,2],[4,85,6],[12,83,4]],[[0,81,4],[4,80,4],[8,76,8]],[[0,78,2],[2,80,2],[4,83,8],[12,81,4]],[[0,80,4],[4,78,4],[8,76,8]]]});
 // ===== v6 · bossa jazz no tempo das animações =====
 // Ponto cruz: cena do pássaro troca de fase a cada 3,2 s e as texturas de pontos mudam devagar -> 75 bpm (1 compasso = 3,2 s), balada de bossa, notas pontilhadas como pontos aparecendo
-ST.b3_bayer={bpm:75,gain:2.2,prog:[[[45,[60,64,67,71]]],[[38,[60,64,66,69]]],[[41,[64,67,69,72]]],[[40,[62,67,68,71]]],[[45,[60,64,67,71]]],[[43,[62,65,69,71]]],[[41,[64,67,69,72]]],[[40,[62,64,68,71]]]],
+ST.b3_bayer={bpm:75,sync:3.2,gain:2.2,prog:[[[45,[60,64,67,71]]],[[38,[60,64,66,69]]],[[41,[64,67,69,72]]],[[40,[62,67,68,71]]],[[45,[60,64,67,71]]],[[43,[62,65,69,71]]],[[41,[64,67,69,72]]],[[40,[62,64,68,71]]]],
  step(H,bar,s,t,root,ch,half,E){const v=.9+Math.random()*.1;if(s%2===0)H.shaker(t,s%4?.03:.018);
   if(s===0||s===6||s===8)H.rim(t,s?.025:.035);
   if(s===0)ch.forEach((m,i)=>H.ep(m,t+i*.02,E*7,.04*v));if(s===10)ch.slice(1).forEach((m,i)=>H.ep(m,t+i*.015,E*5,.03*v));
@@ -1208,8 +1208,8 @@ ST.b3_lacada={bpm:160,gain:1.6,sync:3,prog:[[[47,[62,66,69,73]]],[[47,[62,66,69,
   if(first&&s<8&&bar>=2){const R=[ch[0],ch[1],ch[2],ch[3],ch[0]+12,ch[1]+12,ch[2]+12,ch[3]+12];H.vib(R[s]+12,t,.03+s*.003)}
   if(s%4===0&&!first&&bar%4===3){H.echo((tt,a)=>H.blip(ch[3]+24,tt,.01*a,.08),t,E,3)}}};
 // Ninho: as fibras se espalham e se juntam a cada 5,6 s -> 86 bpm (2 compassos = 5,6 s); compasso "espalha" com notas soltas, compasso "junta" com o acorde inteiro na batida
-ST.b3_ninho={bpm:85.7,gain:1.7,prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[37,[64,68,71,73]]],[[42,[64,66,69,73]]],[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[47,[63,66,68,71]]],[[47,[63,66,68,71]]]],
- step(H,bar,s,t,root,ch,half,E){const v=.9+Math.random()*.1,junta=bar%2===1;H.shaker(t,s%2?.024:(s%4?.04:.026));
+ST.b3_ninho={bpm:85.7,sync:11.2,gain:1.7,prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[37,[64,68,71,73]]],[[42,[64,66,69,73]]],[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[47,[63,66,68,71]]],[[47,[63,66,68,71]]]],
+ step(H,bar,s,t,root,ch,half,E){const v=.9+Math.random()*.1,junta=bar%4===1||bar%4===2;H.shaker(t,s%2?.024:(s%4?.04:.026));
   if(!junta){if([0,3,5,9,11,14].includes(s)){const P=[ch[0]+12,ch[1]+12,ch[2],ch[3]+12,ch[1],ch[2]+12];H.ep(P[[0,3,5,9,11,14].indexOf(s)],t,E*2,.04*v)}if(s===0)H.bass(root,t,E*3,.26*v);if(s===10)H.bass(root+7,t,E*2,.18*v)}
   else{const CL=[0,3,6,10,12];if(CL.includes(s)){H.rim(t,.045);ch.forEach((m,i)=>H.ep(m,t+i*.004,E*(s===12?4:1.6),.045*v))}if(s===0||s===6)H.kick(t,.16);const BL={0:[0,3],3:[7,1],6:[0,3],10:[7,2],12:[12,3]};if(BL[s])H.bass(root+BL[s][0],t,E*BL[s][1],.26*v)}
   if(!junta&&bar>=2&&(s===2||s===8))H.vib(ch[(s/2|0)%4]+24,t,.03);
@@ -1284,7 +1284,7 @@ function makeEngine(C,out,ST1){
   flute(m,t,d,v){const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.07);g.gain.setValueAtTime(v*.9,t+d*.8);g.gain.linearRampToValueAtTime(0,t+d+.12);g.connect(bus);const o=osc('sine',hz(m),t,d+.15,g);const lf=C.createGain();lf.gain.value=hz(m)*.006;lf.connect(o.frequency);osc('sine',5,t+.15,d,lf);const g2=C.createGain();g2.gain.value=.08;g2.connect(g);osc('triangle',hz(m)*2,t,d+.15,g2);noise(t,d,'bandpass',hz(m)*2,1.2,v*.25,Math.min(.25,d))}};
  const S=ST1,E16=60/S.bpm/4;if(S.gain){const sg=C.createGain();sg.gain.value=S.gain;dry.disconnect();wet.disconnect();dry.connect(sg);wet.connect(sg);sg.connect(out)}let bar=0,st=0,next=0;
  function step(base){const ph=S.prog[bar%S.prog.length],half=ph.length>1&&st>=(S.steps||16)/2?1:0,[root,ch]=ph[half];const nx=S.prog[(bar+1)%S.prog.length][0][0];const t=base+(S.swing&&st%4===2?(S.swing-.5)*2*E16:0);S.step(H,bar,st,t,root,ch,half,E16,nx);st++;if(st===(S.steps||16)){st=0;bar++}}
- return{tick(now,ahead){if(!next||next<now-.1){next=now+.08;if(S.sync&&C.getOutputTimestamp){try{const ts=C.getOutputTimestamp();const off=ts.performanceTime/1000-ts.contextTime;const pt=next+off;const P=S.sync,wait=(P-(pt%P))%P;next+=wait;bar=0;st=0}catch(e){}}}while(next<now+ahead){step(next);next+=E16}},reset(){next=0}};
+ return{tick(now,ahead){if(!next||next<now-.1){next=now+.08;if(S.sync&&C.getOutputTimestamp){try{const ts=C.getOutputTimestamp();const off=ts.performanceTime/1000-ts.contextTime;const pt=next+off;const P=S.sync,wait=(P-(pt%P))%P;next+=wait;bar=0;st=0}catch(e){}}}while(next<now+ahead){if(S.sync&&st===0&&C.getOutputTimestamp){try{const ts=C.getOutputTimestamp();if(ts.contextTime>0){const off=ts.performanceTime/1000-ts.contextTime,P=S.sync,cyc=Math.round(P/(E16*(S.steps||16)));if(bar%cyc===0){let err=((next+off)%P+P)%P;if(err>P/2)err-=P;if(Math.abs(err)>.015)next-=Math.max(-.05,Math.min(.05,err))}}}catch(e){}}step(next);next+=E16}},reset(){next=0}};
 }
 let FAM=(()=>{try{const u=new URLSearchParams(location.search).get('familia');if(u)return u;return 'kalimba'}catch(e){return 'kalimba'}})();
 const FAMS={bossa:{a:'b2_abertura',a2:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k4_abertura',a2:'k4_cont',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
