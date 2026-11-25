@@ -1291,7 +1291,7 @@ function makeEngine(C,out,ST1){
 }
 let FAM=(()=>{try{const u=new URLSearchParams(location.search).get('familia');if(u)return u;return 'kalimba'}catch(e){return 'kalimba'}})();
 const FAMS={bossa:{a:'b2_abertura',a2:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k4_abertura',a2:'k4_cont',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
-const IDV=.3,FINV=.85;let PICK,PICK2,IDS;function applyFam(){const F=FAMS[FAM];PICK=F.a;PICK2=F.a2;IDS={bayer:F.bayer,lacada:F.lacada,ninho:F.ninho}}applyFam();window.__bayaFamCur=FAM;
+const IDV=.3,FINV=.33;let PICK,PICK2,IDS;function applyFam(){const F=FAMS[FAM];PICK=F.a;PICK2=F.a2;IDS={bayer:F.bayer,lacada:F.lacada,ninho:F.ninho}}applyFam();window.__bayaFamCur=FAM;
 window.__bayaFamNext=()=>window.__bayaFam(FAM==='bossa'?'kalimba':'bossa');window.__bayaFam=f=>{if(!FAMS[f])return;FAM=f;window.__bayaFamCur=f;try{localStorage.setItem('bayaFam',f)}catch(e){}applyFam();famBtn.textContent=f==='bossa'?'Bossa':'Kalimba';upd()};
 function cover(sel){let c=0;document.querySelectorAll(sel).forEach(el=>{const r=el.getBoundingClientRect();c+=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))});return Math.min(1,c/innerHeight)}
 function winner(){if(window.__bayaWin)return window.__bayaWin;const fW=document.getElementById('fW');if(!fW||fW.style.display==='none')return null;const d=[...fW.querySelectorAll('.fwin')].find(x=>x.style.display!=='none');return d?d.dataset.k:null}
