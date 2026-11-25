@@ -378,7 +378,7 @@ body>section:not(.stick):not(.fs){min-height:100vh;display:flex;flex-direction:c
 <!-- S6 NOVO CAPITULO -->
 <section data-scroll="cap" class="stick lt" style="height:240vh" data-act="Ato I · Transformação" data-note="novo-capitulo">
   <div class="in" style="padding:0 8vw">
-    <h2 class="big" style="font-size:clamp(28px,4.2vw,80px);line-height:1.35;white-space:nowrap"><span class="cl" style="display:block;opacity:.1">Uma nova estrutura.</span><span class="cl" style="display:block;opacity:.1">Uma nova identidade.</span><span class="cl y" style="display:block;opacity:.1;color:#FEC204">Um novo capítulo.</span></h2>
+    <h2 class="big" style="font-size:clamp(28px,4.2vw,80px);line-height:1.35;white-space:nowrap"><span class="cl" style="display:block;opacity:.1">Uma nova estrutura.</span><span class="cl" style="display:block;opacity:.1">Uma nova identidade.</span><span class="cl y" style="display:block;opacity:.1;color:#C29000">Um novo capítulo.</span></h2>
   </div>
 </section>
 
@@ -1218,7 +1218,7 @@ ST.b3_ninho={bpm:85.7,gain:1.7,prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[
 function KAL(b,g){return Object.assign({},b,{gain:g,step(H,...a){if(!this._hk||this._hb!==H){this._hb=H;this._hk=Object.assign({},H,{ep:(m,t,d,v)=>H.kal(m,t,v*.75),vib:(m,t,v)=>H.kal(m,t,v*.8),rim:(t,v)=>H.drum(t,v*2.2,'hi'),kick:(t,v)=>H.drum(t,v*1.1,'lo')})}return b.step.call(this,this._hk,...a)}})}
 ST.k3_bayer=KAL(ST.b3_bayer,2.6);ST.k3_lacada=KAL(ST.b3_lacada,1.8);ST.k3_ninho=KAL(ST.b3_ninho,2.3);
 // Abertura · lançamento: kalimba e percussão de mão, introdução que cresce, impacto e groove animado
-ST.k4_abertura={bpm:118,gain:2.6,prog:[[[40,[64,68,71]]],[[47,[63,66,71]]],[[37,[64,68,73]]],[[45,[64,69,73]]]],
+ST.k4_abertura={bpm:118,gain:2.6,sync:60/118*4,prog:[[[40,[64,68,71]]],[[47,[63,66,71]]],[[37,[64,68,73]]],[[45,[64,69,73]]]],
  mel:[[[0,76,2],[2,80,2],[4,83,4],[8,80,2],[10,83,2],[12,85,4]],[[0,83,4],[4,80,4],[8,78,8]],[[0,80,2],[2,83,2],[4,85,4],[8,88,4],[12,85,4]],[[0,83,8],[8,81,4],[12,80,4]]],
  step(H,bar,s,t,root,ch,half,E){const v=.88+Math.random()*.12,T=[ch[0],ch[1],ch[2],ch[0]+12,ch[1]+12,ch[2]+12,ch[0]+24],intro=bar<2,build=bar>=2&&bar<4,full=bar>=4;
   // kalimba: riff sincopado
@@ -1230,6 +1230,10 @@ ST.k4_abertura={bpm:118,gain:2.6,prog:[[[40,[64,68,71]]],[[47,[63,66,71]]],[[37,
    if(s===0)H.bass(root,t,E*6,.22*v);if(s===6)H.bass(root,t,E*2,.14*v);if(s===8)H.bass(root+7,t,E*6,.2*v);
    if(bar>=6){const m=this.mel[bar%4].find(n=>n[0]===s);if(m)H.kal(m[1],t,.04)}}
   if(full&&bar%8===7&&s>=12)H.drum(t,.08+(s-12)*.03,'hi')}};
+// fundo neutro para a fala: mesmo andamento e tom da abertura, sem melodia, sem viradas, dinâmica constante
+ST.k4_cont={bpm:118,gain:3.6,sync:60/118*4,prog:[[[40,[64,68,71]]],[[40,[64,68,71]]],[[47,[63,66,71]]],[[47,[63,66,71]]],[[37,[64,68,73]]],[[37,[64,68,73]]],[[45,[64,69,73]]],[[45,[64,69,73]]]],
+ step(H,bar,s,t,root,ch,half,E){if(s%2)return;const e=s/2,T=[ch[0]+12,ch[2],ch[1]+12,ch[2]+12,ch[0]+12,ch[2],ch[1]+12,ch[2]];H.kal(T[e],t,.024);H.shaker(t,e%2?.022:.016);if(e===0||e===4)H.drum(t,.12,'lo');if(s===0&&bar%2===0)H.bass(root,t,E*30,.14)}};
+ST.passaros={bpm:90,gain:2,step(H,bar,s,t){if(Math.random()<.045)H.bird(t,.014);if(s===0&&bar%2===0)H.breeze(t,60/90*8,.008)},prog:[[[40,[64]]]]};
 function makeEngine(C,out,ST1){
  const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=115;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
  const len=C.sampleRate*2.4,b=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}const rev=C.createConvolver();rev.buffer=b;
@@ -1280,14 +1284,14 @@ function makeEngine(C,out,ST1){
  return{tick(now,ahead){if(!next||next<now-.1){next=now+.08;if(S.sync&&C.getOutputTimestamp){try{const ts=C.getOutputTimestamp();const off=ts.performanceTime/1000-ts.contextTime;const pt=next+off;const P=S.sync,wait=(P-(pt%P))%P;next+=wait;bar=0;st=0}catch(e){}}}while(next<now+ahead){step(next);next+=E16}},reset(){next=0}};
 }
 let FAM=(()=>{try{const u=new URLSearchParams(location.search).get('familia');if(u)return u;return 'kalimba'}catch(e){return 'kalimba'}})();
-const FAMS={bossa:{a:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k4_abertura',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
-const IDV=.3,FINV=.85;let PICK,IDS;function applyFam(){const F=FAMS[FAM];PICK=F.a;IDS={bayer:F.bayer,lacada:F.lacada,ninho:F.ninho}}applyFam();window.__bayaFamCur=FAM;
+const FAMS={bossa:{a:'b2_abertura',a2:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k4_abertura',a2:'k4_cont',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
+const IDV=.3,FINV=.85;let PICK,PICK2,IDS;function applyFam(){const F=FAMS[FAM];PICK=F.a;PICK2=F.a2;IDS={bayer:F.bayer,lacada:F.lacada,ninho:F.ninho}}applyFam();window.__bayaFamCur=FAM;
 window.__bayaFamNext=()=>window.__bayaFam(FAM==='bossa'?'kalimba':'bossa');window.__bayaFam=f=>{if(!FAMS[f])return;FAM=f;window.__bayaFamCur=f;try{localStorage.setItem('bayaFam',f)}catch(e){}applyFam();famBtn.textContent=f==='bossa'?'Bossa':'Kalimba';upd()};
 function cover(sel){let c=0;document.querySelectorAll(sel).forEach(el=>{const r=el.getBoundingClientRect();c+=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))});return Math.min(1,c/innerHeight)}
 function winner(){const fW=document.getElementById('fW');if(!fW||fW.style.display==='none')return null;const d=[...fW.querySelectorAll('.fwin')].find(x=>x.style.display!=='none');return d?d.dataset.k:null}
-function targets(){const T={};const add=(k,v)=>{if(v>0)T[k]=Math.max(T[k]||0,v)};add(PICK,amt());
- for(const id in IDS){let f=1;const L=[...document.querySelectorAll('.f-'+id)].pop();if(L){const r=L.getBoundingClientRect();if(r.top<innerHeight*.5)f=Math.max(0,Math.min(.35,(r.bottom-innerHeight*.6)/innerHeight*.35))}add(IDS[id],IDV*cover('.f-'+id)*f)}
- const fim=document.querySelector('[data-scroll="fim"]');if(fim){const r=fim.getBoundingClientRect();const f=Math.max(0,Math.min(1,(Math.min(innerHeight,r.bottom)-Math.max(0,r.top))/innerHeight));const w=winner();add(w?IDS[w]:PICK,FINV*f)}
+function targets(){const T={};const add=(k,v)=>{if(v>0)T[k]=Math.max(T[k]||0,v)};{const a=amt();if(ducked||!onFirst())add(PICK2,a);else add(PICK,a)}
+ add('passaros',.6*cover('[data-scroll="insp"]'));for(const id in IDS){let f=1;const L=[...document.querySelectorAll('.f-'+id)].pop();if(L){const r=L.getBoundingClientRect();if(r.top<innerHeight*.5)f=Math.max(0,Math.min(.35,(r.bottom-innerHeight*.6)/innerHeight*.35))}add(IDS[id],IDV*cover('.f-'+id)*f)}
+ const fim=document.querySelector('[data-scroll="fim"]');if(fim){const r=fim.getBoundingClientRect();const f=Math.max(0,Math.min(1,(Math.min(innerHeight,r.bottom)-Math.max(0,r.top))/innerHeight));const w=winner();add(w?IDS[w]:PICK2,FINV*f)}
  return T}
 const ENG={};window.__bayaSomG=()=>Object.fromEntries(Object.entries(ENG).map(([k,e])=>[k,+e.g.gain.value.toFixed(3)]));window.__bayaSomT=()=>targets();
 function start(){if(started)return;started=true;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=new C();master=ac.createGain();master.gain.value=0;const comp=ac.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;master.connect(comp);comp.connect(ac.destination);
