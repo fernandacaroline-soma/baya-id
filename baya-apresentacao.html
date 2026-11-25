@@ -1154,6 +1154,42 @@ ST.s_ninho={bpm:100,gain:4.1,prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[3
   if(bar%2===1&&s===14)H.kal(ch[3]+12,t,.025);if(bar%4===0&&s===6)H.kal(ch[1]+24,t,.02);
   if(s===0&&bar%2===0)H.breeze(t,E*32,.012);if(Math.random()<.035)H.bird(t,.012);if(Math.random()<.025)H.drop(86+(Math.random()*10|0),t,.014);
   const m=M8(this.mel,bar,s);if(m)H.flute(m[1],t,m[2]*E*.95,.05)}};
+// ===== v5 · duas famílias fechadas: mesmos instrumentos, composições inspiradas em artistas =====
+function BB(c){return{bpm:c.bpm,gain:c.gain||1.5,prog:c.prog,mel:c.mel,
+ step(H,bar,s,t,root,ch,half,E){const v=.9+Math.random()*.1;H.shaker(t,s%2?.02:(s%4?.042:.028));
+  if(c.kick.includes(s))H.kick(t,s===0?.2:.12);const CL=c.cl[bar%c.cl.length];if(CL.includes(s)){H.rim(t,.045);ch.forEach((m,i)=>H.ep(m,t+i*.006,E*c.comp,.042*v))}
+  const B=c.bass[s];if(B)H.bass(root+B[0],t,E*B[1],B[2]*v);
+  if(bar>=(c.ms||2)){const mb=c.mel[bar%c.mel.length];const m=mb&&mb.find(n=>n[0]===s);if(m)H.vib(m[1],t,.05)}
+  if(c.x)c.x(H,bar,s,t,root,ch,E)}}}
+const BOSSA_BASS={0:[0,5,.32],6:[7,2,.22],8:[7,5,.28],14:[0,2,.2]};
+const NAT=(H,bar,s,t,root,ch,E)=>{if(s===0&&bar%2===0)H.breeze(t,E*32,.011);if(Math.random()<.03)H.bird(t,.011);if(Math.random()<.022)H.drop(86+(Math.random()*10|0),t,.013)};
+// Abertura · Tom Jobim: harmonia que desce cromaticamente, melodia de notas longas
+ST.b2_abertura=BB({bpm:120,cl:[[0,6,12],[4,10]],comp:3.2,kick:[0,8],bass:BOSSA_BASS,
+ prog:[[[38,[61,64,66,69]]],[[43,[65,69,71,76]]],[[42,[61,64,69,73]]],[[47,[63,66,69,72]]],[[40,[62,66,67,71]]],[[45,[61,66,67,71]]],[[38,[61,64,66,69]]],[[45,[62,64,67,71]]]],
+ mel:[[[0,81,12],[12,78,4]],[[0,76,16]],[[0,76,4],[4,78,4],[8,81,8]],[[0,80,16]],[[0,79,12],[12,78,4]],[[0,76,16]],[[0,74,8],[8,76,8]],[[0,71,16]]]});
+// Ponto cruz · Marcos Valle: samba-jazz mais rápido, acordes curtos e sincopados, baixo andando em oitavas; pássaro e bips discretos
+ST.b2_bayer=BB({bpm:132,cl:[[0,3,7,10],[2,6,9,12]],comp:1.4,kick:[0,8],bass:{0:[0,2,.3],3:[12,1,.17],6:[7,2,.24],8:[0,2,.28],11:[12,1,.17],14:[10,2,.2]},
+ prog:[[[45,[60,64,67,71]]],[[38,[60,64,66,69]]],[[45,[60,64,67,71]]],[[38,[60,64,66,69]]],[[41,[64,67,69,72]]],[[40,[62,67,68,71]]],[[45,[60,64,67,71]]],[[38,[60,64,66,69]]]],
+ mel:[null,null,[[0,76,4],[4,79,2],[6,81,6],[12,84,4]],[[0,83,8],[8,81,4],[12,79,4]],[[0,76,6],[6,74,2],[8,72,8]],[[0,71,8],[8,74,4],[12,76,4]],[[0,81,4],[4,79,4],[8,76,8]],[[0,79,6],[6,76,2],[8,74,8]]],
+ x:(H,bar,s,t,root,ch)=>{if(Math.random()<.02)H.bird(t,.011);if(s===15&&bar%2&&Math.random()<.6)H.blip(ch[3]+24,t,.011)}});
+// Laçada · Bebel Gilberto: bossa lenta e espaçada, tudo no mesmo pulso reto, acordes longos; eco digital sutil
+ST.b2_lacada=BB({bpm:96,gain:2.1,cl:[[0,10],[6,12]],comp:5,kick:[0,8,11],bass:{0:[0,6,.3],10:[7,4,.22]},
+ prog:[[[47,[62,66,69,73]]],[[40,[62,66,68,71]]],[[47,[62,66,69,73]]],[[40,[62,66,68,71]]],[[43,[62,66,69,71]]],[[42,[61,64,69,73]]],[[40,[62,66,67,71]]],[[45,[61,66,67,71]]]],
+ mel:[null,null,[[0,74,8],[10,73,6]],[[0,71,16]],[[0,74,4],[4,76,4],[8,78,8]],[[0,76,16]],[[0,74,8],[8,71,8]],[[0,73,16]]],
+ x:(H,bar,s,t,root,ch,E)=>{if(s%4===0&&bar%2===0){const A=[ch[0],ch[2],ch[3],ch[1]];H.echo((tt,a)=>H.blip(A[s/4]+24,tt,.011*a,.09),t,E,3)}}});
+// Ninho · Toninho Horta: harmonia aberta e luminosa (lídio), melodia que canta, mata ao fundo
+ST.b2_ninho=BB({bpm:108,cl:[[0,6,12],[4,10]],comp:2.2,kick:[0,8],bass:BOSSA_BASS,
+ prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[[37,[64,68,71,73]]],[[47,[63,66,68,71]]],[[42,[64,66,69,73]]],[[45,[64,69,71,73]]],[[40,[64,66,68,71]]],[[47,[63,66,68,71]]]],
+ mel:[null,null,[[0,80,2],[2,83,2],[4,85,8],[12,83,4]],[[0,81,8],[8,80,8]],[[0,76,2],[2,78,2],[4,80,8],[12,78,4]],[[0,80,16]],[[0,83,4],[4,85,4],[8,88,8]],[[0,87,16]]],x:NAT});
+// família kalimba v5
+ST.k2_lacada={bpm:90,gain:3.4,prog:[[[47,[62,66,69]]],[[40,[64,68,71]]],[[43,[62,67,71]]],[[42,[61,66,69]]]],
+ mel:[null,null,null,null,[[0,78,8],[8,76,8]],[[0,76,16]],[[0,74,8],[8,79,8]],[[0,78,16]]],
+ step(H,bar,s,t,root,ch,half,E){const v=.85+Math.random()*.15,g=bar*16+s,T=[ch[0],ch[1],ch[2],ch[0]+12,ch[1]+12];
+  if(g%3===0)H.kal(T[(g/3|0)%5],t,.026*v);// padrão de 3 contra 4: o laço que gira
+  if(s===0||s===8)H.drum(t,s?.14:.2,'lo');if(s===4||s===12)H.drum(t,.08,'hi');if(s%2)H.shaker(t,.018);if(s===0)H.bass(root,t,E*14,.16);if(s%4===2)H.tick(t,.014);
+  const mb=this.mel[bar%8];const m=mb&&mb.find(n=>n[0]===s);if(m)H.kal(m[1],t,.032)}};
+ST.k2_ninho=KS({bpm:100,nat:1,lead:'kal',prog:[[[40,[64,68,71]]],[[45,[64,69,73]]],[[37,[64,68,73]]],[[42,[66,69,73]]]],pat:[0,4,2,3,1,5,4,6],lo:[0,10],hi:[4,7,12],
+ mel:[[[0,80,2],[2,83,2],[4,85,6],[12,83,4]],[[0,81,4],[4,80,4],[8,76,8]],[[0,78,2],[2,80,2],[4,83,8],[12,81,4]],[[0,80,4],[4,78,4],[8,76,8]]]});
 function makeEngine(C,out,ST1){
  const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=115;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
  const len=C.sampleRate*2.4,b=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}const rev=C.createConvolver();rev.buffer=b;
@@ -1201,9 +1237,10 @@ function makeEngine(C,out,ST1){
  function step(base){const ph=S.prog[bar%S.prog.length],half=ph.length>1&&st>=(S.steps||16)/2?1:0,[root,ch]=ph[half];const nx=S.prog[(bar+1)%S.prog.length][0][0];const t=base+(S.swing&&st%4===2?(S.swing-.5)*2*E16:0);S.step(H,bar,st,t,root,ch,half,E16,nx);st++;if(st===(S.steps||16)){st=0;bar++}}
  return{tick(now,ahead){if(!next||next<now-.1)next=now+.08;while(next<now+ahead){step(next);next+=E16}},reset(){next=0}};
 }
-const PICK=(()=>{let k='s_abertura';try{const fam=new URLSearchParams(location.search).get('familia');if(fam==='bossa')k='bossa';if(fam==='kalimba')k='k_abertura';const q=new URLSearchParams(location.search),u=q.get('abertura')||q.get('trilha');if(u&&ST[u])k=u}catch(e){}return k})();
+const FAM=(()=>{try{return new URLSearchParams(location.search).get('familia')||'bossa'}catch(e){return 'bossa'}})();
+const PICK=(()=>{let k=FAM==='kalimba'?'k_abertura':'b2_abertura';try{const u=new URLSearchParams(location.search).get('abertura');if(u&&ST[u])k=u}catch(e){}return k})();
 // trilha de cada identidade (bem baixinho) e do resultado final
-const IDS={bayer:'s_bayer',lacada:'s_lacada',ninho:'s_ninho'};try{if(new URLSearchParams(location.search).get('familia')==='kalimba'){IDS.bayer='kalimba';IDS.lacada='k_lacada';IDS.ninho='k_ninho'}}catch(e){}try{if(new URLSearchParams(location.search).get('familia')==='bossa'){IDS.bayer='b_bayer';IDS.lacada='b_lacada';IDS.ninho='b_ninho'}}catch(e){}try{const q=new URLSearchParams(location.search);for(const k in IDS){const u=q.get(k);if(u&&ST[u])IDS[k]=u}}catch(e){}const IDV=.3,FINV=.85;
+const IDS=FAM==='kalimba'?{bayer:'kalimba',lacada:'k2_lacada',ninho:'k2_ninho'}:{bayer:'b2_bayer',lacada:'b2_lacada',ninho:'b2_ninho'};try{const q=new URLSearchParams(location.search);for(const k in IDS){const u=q.get(k);if(u&&ST[u])IDS[k]=u}}catch(e){}const IDV=.3,FINV=.85;
 function cover(sel){let c=0;document.querySelectorAll(sel).forEach(el=>{const r=el.getBoundingClientRect();c+=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))});return Math.min(1,c/innerHeight)}
 function winner(){const fW=document.getElementById('fW');if(!fW||fW.style.display==='none')return null;const d=[...fW.querySelectorAll('.fwin')].find(x=>x.style.display!=='none');return d?d.dataset.k:null}
 function targets(){const T={};const add=(k,v)=>{if(v>0)T[k]=Math.max(T[k]||0,v)};add(PICK,amt());
