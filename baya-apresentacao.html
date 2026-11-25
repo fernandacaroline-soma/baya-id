@@ -1217,6 +1217,19 @@ ST.b3_ninho={bpm:85.7,gain:1.7,prog:[[[40,[64,66,68,71]]],[[45,[64,69,71,73]]],[
 // família kalimba no mesmo tempo das animações: mesma composição v6, tocada por kalimba e percussão de mão
 function KAL(b,g){return Object.assign({},b,{gain:g,step(H,...a){if(!this._hk||this._hb!==H){this._hb=H;this._hk=Object.assign({},H,{ep:(m,t,d,v)=>H.kal(m,t,v*.75),vib:(m,t,v)=>H.kal(m,t,v*.8),rim:(t,v)=>H.drum(t,v*2.2,'hi'),kick:(t,v)=>H.drum(t,v*1.1,'lo')})}return b.step.call(this,this._hk,...a)}})}
 ST.k3_bayer=KAL(ST.b3_bayer,2.6);ST.k3_lacada=KAL(ST.b3_lacada,1.8);ST.k3_ninho=KAL(ST.b3_ninho,2.3);
+// Abertura · lançamento: kalimba e percussão de mão, introdução que cresce, impacto e groove animado
+ST.k4_abertura={bpm:118,gain:2.6,prog:[[[40,[64,68,71]]],[[47,[63,66,71]]],[[37,[64,68,73]]],[[45,[64,69,73]]]],
+ mel:[[[0,76,2],[2,80,2],[4,83,4],[8,80,2],[10,83,2],[12,85,4]],[[0,83,4],[4,80,4],[8,78,8]],[[0,80,2],[2,83,2],[4,85,4],[8,88,4],[12,85,4]],[[0,83,8],[8,81,4],[12,80,4]]],
+ step(H,bar,s,t,root,ch,half,E){const v=.88+Math.random()*.12,T=[ch[0],ch[1],ch[2],ch[0]+12,ch[1]+12,ch[2]+12,ch[0]+24],intro=bar<2,build=bar>=2&&bar<4,full=bar>=4;
+  // kalimba: riff sincopado
+  const RIFF=[0,4,2,5,3,6,4,2],RS=[0,3,6,8,10,13,14];if(intro){if(s%4===0)H.kal(T[RIFF[s/4|0]],t,.028*v)}else if(RS.includes(s))H.kal(T[RIFF[RS.indexOf(s)]],t,(full?.03:.026)*v);
+  // crescendo e impacto
+  if(bar===2&&s===0)H.riser(t,E*32,.03);if(bar===4&&s===0){H.impact(t,.32);ch.forEach((m,i)=>H.kal(m+12,t+i*.012,.04))}
+  if(build&&s%4===0)H.drum(t,.12+(bar-2)*.05+s*.004,'lo');if(build)H.shaker(t,s%2?.015:.03);
+  if(full){if([0,6,8,11].includes(s))H.drum(t,s===0||s===8?.26:.17,'lo');if(s===4||s===12)H.drum(t,.15,'hi');if(s===14&&bar%2)H.drum(t,.1,'hi');H.shaker(t,s%2?.024:(s%4?.05:.032));if(s%4===2)H.tick(t,.015);
+   if(s===0)H.bass(root,t,E*6,.22*v);if(s===6)H.bass(root,t,E*2,.14*v);if(s===8)H.bass(root+7,t,E*6,.2*v);
+   if(bar>=6){const m=this.mel[bar%4].find(n=>n[0]===s);if(m)H.kal(m[1],t,.04)}}
+  if(full&&bar%8===7&&s>=12)H.drum(t,.08+(s-12)*.03,'hi')}};
 function makeEngine(C,out,ST1){
  const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=115;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
  const len=C.sampleRate*2.4,b=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}const rev=C.createConvolver();rev.buffer=b;
@@ -1259,13 +1272,15 @@ function makeEngine(C,out,ST1){
   berim(m,t,v,bend){const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.5);g.connect(bus);const f=C.createBiquadFilter();f.type='bandpass';f.frequency.value=hz(m)*3;f.Q.value=1.5;f.connect(g);const o=osc('sawtooth',hz(m),t,.55,f);if(bend)o.frequency.linearRampToValueAtTime(hz(m+2),t+.12);const g2=C.createGain();g2.gain.value=.6;g2.connect(g);osc('sine',hz(m)*2,t,.55,g2)},
   clap(t,v){[0,.008,.017].forEach(d=>noise(t+d,.15,'bandpass',1300,1.2,v,.11))},
   echo(fn,t,E,n){for(let i=0;i<n;i++)fn(t+i*E*3,Math.pow(.45,i))},
+  riser(t,d,v){const s=C.createBufferSource();s.buffer=nb;s.loop=true;const f=C.createBiquadFilter();f.type='bandpass';f.Q.value=1.2;f.frequency.setValueAtTime(500,t);f.frequency.exponentialRampToValueAtTime(6000,t+d);const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.95);g.gain.linearRampToValueAtTime(0,t+d+.05);s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+d+.1)},
+  impact(t,v){const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+1.2);g.connect(bus);const o=osc('sine',220,t,1.3,g);o.frequency.exponentialRampToValueAtTime(130,t+.25);noise(t,.6,'lowpass',3000,.5,v*.5,.5)},
   flute(m,t,d,v){const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.07);g.gain.setValueAtTime(v*.9,t+d*.8);g.gain.linearRampToValueAtTime(0,t+d+.12);g.connect(bus);const o=osc('sine',hz(m),t,d+.15,g);const lf=C.createGain();lf.gain.value=hz(m)*.006;lf.connect(o.frequency);osc('sine',5,t+.15,d,lf);const g2=C.createGain();g2.gain.value=.08;g2.connect(g);osc('triangle',hz(m)*2,t,d+.15,g2);noise(t,d,'bandpass',hz(m)*2,1.2,v*.25,Math.min(.25,d))}};
  const S=ST1,E16=60/S.bpm/4;if(S.gain){const sg=C.createGain();sg.gain.value=S.gain;dry.disconnect();wet.disconnect();dry.connect(sg);wet.connect(sg);sg.connect(out)}let bar=0,st=0,next=0;
  function step(base){const ph=S.prog[bar%S.prog.length],half=ph.length>1&&st>=(S.steps||16)/2?1:0,[root,ch]=ph[half];const nx=S.prog[(bar+1)%S.prog.length][0][0];const t=base+(S.swing&&st%4===2?(S.swing-.5)*2*E16:0);S.step(H,bar,st,t,root,ch,half,E16,nx);st++;if(st===(S.steps||16)){st=0;bar++}}
  return{tick(now,ahead){if(!next||next<now-.1){next=now+.08;if(S.sync&&C.getOutputTimestamp){try{const ts=C.getOutputTimestamp();const off=ts.performanceTime/1000-ts.contextTime;const pt=next+off;const P=S.sync,wait=(P-(pt%P))%P;next+=wait;bar=0;st=0}catch(e){}}}while(next<now+ahead){step(next);next+=E16}},reset(){next=0}};
 }
 let FAM=(()=>{try{const u=new URLSearchParams(location.search).get('familia');if(u)return u;return 'kalimba'}catch(e){return 'kalimba'}})();
-const FAMS={bossa:{a:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k_abertura',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
+const FAMS={bossa:{a:'b2_abertura',bayer:'b3_bayer',lacada:'b3_lacada',ninho:'b3_ninho'},kalimba:{a:'k4_abertura',bayer:'k3_bayer',lacada:'k3_lacada',ninho:'k3_ninho'}};if(!FAMS[FAM])FAM='kalimba';
 const IDV=.3,FINV=.85;let PICK,IDS;function applyFam(){const F=FAMS[FAM];PICK=F.a;IDS={bayer:F.bayer,lacada:F.lacada,ninho:F.ninho}}applyFam();window.__bayaFamCur=FAM;
 window.__bayaFamNext=()=>window.__bayaFam(FAM==='bossa'?'kalimba':'bossa');window.__bayaFam=f=>{if(!FAMS[f])return;FAM=f;window.__bayaFamCur=f;try{localStorage.setItem('bayaFam',f)}catch(e){}applyFam();famBtn.textContent=f==='bossa'?'Bossa':'Kalimba';upd()};
 function cover(sel){let c=0;document.querySelectorAll(sel).forEach(el=>{const r=el.getBoundingClientRect();c+=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))});return Math.min(1,c/innerHeight)}
