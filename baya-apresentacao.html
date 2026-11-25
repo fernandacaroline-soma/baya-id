@@ -324,7 +324,7 @@ body>section:not(.stick):not(.fs){min-height:100vh;display:flex;flex-direction:c
 </section>
 
 <!-- S2 TRAJETORIA -->
-<section data-scroll="traj" data-steps=".56" class="stick lt" style="height:440vh" data-act="Ato I · Transformação" data-note="trajetoria">
+<section data-scroll="traj" data-steps=".56" class="stick lt" style="height:440vh" data-act="Ato I · Transformação" data-note-steps="trajetoria-a,trajetoria">
   <div class="in" style="justify-content:center">
     <div style="position:absolute;top:16vh;left:8vw" class="mono">Nossa trajetória</div>
     <div id="tWeb" class="big" style="position:absolute;left:50%;top:40%;white-space:nowrap">DS Apps</div>
@@ -982,16 +982,17 @@ function titleOf(el){const h=el.querySelector('h1,h2,h3,.big,.mid');return h?h.t
 function current(){const y=innerHeight*.5;let best=null,bh=1e12;document.querySelectorAll('[data-note],[data-note-alias],[data-note-steps]').forEach(el=>{if(el.closest('#finPrev'))return;const r=el.getBoundingClientRect();if(r.top<=y&&r.bottom>=y&&r.height<bh){best=el;bh=r.height}});
  if(!best){// tela sem roteiro: usa a seção visível
   const sec=[...document.querySelectorAll('body>section')].find(s=>{const r=s.getBoundingClientRect();return r.top<=y&&r.bottom>=y});return sec?{el:sec,key:null,step:-1}:null}
- if(best.dataset.noteSteps){const ks=best.dataset.noteSteps.split(',');const st=[...best.querySelectorAll('.step')];let i=st.findIndex(s=>s.classList.contains('cur'));if(i<0)i=0;return{el:best,key:ks[Math.min(i,ks.length-1)].trim(),step:i}}
+ if(best.dataset.noteSteps){const ks=best.dataset.noteSteps.split(',');const st=[...best.querySelectorAll('.step')];let i=st.findIndex(s=>s.classList.contains('cur'));if(!st.length&&best.dataset.steps){const r=best.getBoundingClientRect(),pr=Math.max(0,Math.min(1,-r.top/Math.max(1,r.height-innerHeight)));const cuts=best.dataset.steps.split(',').map(Number);i=cuts.filter(c=>pr>=c).length}if(i<0)i=0;return{el:best,key:ks[Math.min(i,ks.length-1)].trim(),step:i}}
  // seção fora da lista de roteiro mas visível por cima? verifica se a seção do centro é outra
  const sec=[...document.querySelectorAll('body>section')].find(s=>{const r=s.getBoundingClientRect();return r.top<=y&&r.bottom>=y});if(sec&&!sec.contains(best)&&sec!==best)return{el:sec,key:null,step:-1};
  if(best.dataset.noteAlias)return{el:best,key:best.dataset.noteAlias,step:-1};let mk=null;best.querySelectorAll('[data-note-mark]').forEach(m=>{if(m.getBoundingClientRect().top<=y)mk=m});if(mk)return{el:mk,key:mk.dataset.noteMark,step:-1};
  return{el:best,key:best.dataset.note,step:-1}}
 function state(){const c=current();const L=stops();let idx=-1;if(c&&c.key)idx=L.findIndex(s=>s.key===c.key);
- const num=idx>=0?String(idx+1).padStart(2,'0'):'';
- let nx=null;if(idx>=0&&idx<L.length-1){const k=L[idx+1].key;nx={key:k,num:String(idx+2).padStart(2,'0'),t:titleOf(L[idx+1].el)}}
- else if(c&&!c.key){const after=L.find(s=>s.el.compareDocumentPosition(c.el)&Node.DOCUMENT_POSITION_PRECEDING);if(after){const k=after.key;nx={key:k,num:String(L.indexOf(after)+1).padStart(2,'0'),t:titleOf(after.el)}}}
- return{key:c?c.key||'':'',num,act:c?(c.el.dataset.act||''):'',t:c?titleOf(c.el):'',next:nx,total:L.length}}
+ const LB=[];let n=0;L.forEach((s,i)=>{const k=s.key;if(/-a$/.test(k)){n++;LB.push(String(n).padStart(2,'0')+'a')}else if(i>0&&L[i-1].key===k+'-a'){LB.push(String(n).padStart(2,'0')+'b')}else{n++;LB.push(String(n).padStart(2,'0'))}});
+ const num=idx>=0?LB[idx]:'';
+ let nx=null;if(idx>=0&&idx<L.length-1){const k=L[idx+1].key;nx={key:k,num:LB[idx+1],t:titleOf(L[idx+1].el)}}
+ else if(c&&!c.key){const after=L.find(s=>s.el.compareDocumentPosition(c.el)&Node.DOCUMENT_POSITION_PRECEDING);if(after){const k=after.key;nx={key:k,num:LB[L.indexOf(after)],t:titleOf(after.el)}}}
+ return{key:c?c.key||'':'',num,act:c?(c.el.dataset.act||''):'',t:c?titleOf(c.el):'',next:nx,total:n}}
 let ch=null;try{ch=new BroadcastChannel('baya-apresentador')}catch(e){}
 let last='';function send(force){let s;try{s=state()}catch(e){return}const sig=s.key+'|'+s.num+'|'+s.t;if(!force&&sig===last)return;last=sig;s.at=Date.now();try{ch&&ch.postMessage(s)}catch(e){}try{localStorage.setItem('baya-ap-state',JSON.stringify(s))}catch(e){}}
 let raf=0;addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;send(false)})},{passive:true});setInterval(()=>send(false),700);
