@@ -1231,19 +1231,19 @@ ST.k4_abertura={bpm:118,gain:2.6,sync:60/118*4,prog:[[[40,[64,68,71]]],[[47,[63,
    if(bar>=6){const m=this.mel[bar%4].find(n=>n[0]===s);if(m)H.kal(m[1],t,.04)}}
   if(full&&bar%8===7&&s>=12)H.drum(t,.08+(s-12)*.03,'hi')}};
 // fundo neutro para a fala: mesmo andamento e tom da abertura, sem melodia, sem viradas, dinâmica constante
-ST.k4_cont={bpm:118,gain:3.6,sync:60/118*4,
+ST.k4_cont={bpm:118,gain:8.5,sync:60/118*4,
  prog:[[[40,[64,68,71]]],[[40,[64,68,71]]],[[47,[63,66,71]]],[[47,[63,66,71]]],[[37,[64,68,73]]],[[37,[64,68,73]]],[[45,[64,69,73]]],[[45,[64,69,73]]],
   [[42,[64,69,73]]],[[42,[64,69,73]]],[[45,[64,69,71]]],[[45,[64,69,71]]],[[44,[64,68,71]]],[[44,[64,68,71]]],[[47,[64,66,71]]],[[47,[63,66,71]]],
   [[45,[64,68,71]]],[[45,[64,69,73]]],[[40,[64,68,71]]],[[40,[66,68,71]]],[[37,[64,68,71]]],[[37,[64,68,73]]],[[47,[64,66,71]]],[[47,[63,66,71]]],
   [[40,[64,68,71]]],[[44,[64,68,71]]],[[45,[64,69,73]]],[[42,[64,69,73]]],[[45,[64,69,71]]],[[47,[63,66,71]]],[[40,[64,68,71]]],[[40,[64,68,71]]]],
- step(H,bar,s,t,root,ch,half,E){// fundo para a fala: 4 seções de 8 compassos que se alternam, sem melodia e sem picos
-  const sec=(bar>>3)&3,v=.9+Math.random()*.1,T=[ch[0]+12,ch[1]+12,ch[2]+12,ch[2],ch[1]];
-  const P=[{0:0,2:2,4:1,6:2,8:0,10:2,12:1,14:2},{0:0,3:2,6:1,8:2,11:0,14:1},{0:0,4:3,8:1,12:4},{0:1,2:0,4:2,6:1,8:3,10:2,12:0,14:4}][sec];
-  if(P[s]!=null&&Math.random()>.06)H.kal(T[P[s]],t,(sec===2?.026:.022)*v);
-  if(sec===2&&s===10&&bar%2)H.kal(ch[2]+24,t,.012);
-  if(s%2===0)H.shaker(t,sec===2?.01:(s%4?.02:.014));
-  if(sec!==2&&(s===0||s===8))H.drum(t,s?.08:.11,'lo');if(sec===3&&s===12&&bar%2)H.drum(t,.05,'hi');
-  if(s===0&&bar%2===0)H.bass(root,t,E*30,.12)}};ST.passaros={fx:1,bpm:90,gain:2,step(H,bar,s,t){if(Math.random()<.045)H.bird(t,.014);if(s===0&&bar%2===0)H.breeze(t,60/90*8,.008)},prog:[[[40,[64]]]]};
+ step(H,bar,s,t,root,ch,half,E){// fundo para a fala: sem grave contínuo, padrões que mudam a cada compasso, respiros
+  if(s===0){const R=Math.random;this._p=R()<.12?-1:((bar>>3)&3)*2+(R()<.5?0:1);this._o=R()<.3?12:0}
+  const pi=this._p,v=.88+Math.random()*.12,T=[ch[0]+12,ch[1]+12,ch[2]+12,ch[2],ch[1],ch[0]+24];
+  const PS=[{0:0,4:2,6:1,10:2,12:0},{0:2,2:1,8:0,10:2,14:1},{0:0,3:2,6:1,11:0,14:2},{2:1,6:2,10:0,14:2},{0:3,4:1,8:4,12:2},{0:1,6:3,8:2,12:5},{0:0,2:1,4:2,8:1,10:0,12:2},{0:2,6:0,8:1,14:2}];
+  if(pi>=0){const P=PS[pi];if(P[s]!=null&&Math.random()>.08)H.kal(T[P[s]]+(P[s]<3?this._o:0)-(this._o?12:0),t,.022*v)}
+  if(s%4===2)H.shaker(t,.012+Math.random()*.008);if(s%8===4&&Math.random()<.5)H.tick(t,.01);
+  if(s===0&&bar%4===0&&Math.random()<.7)H.drum(t,.06,'lo');if(s===8&&Math.random()<.3)H.drum(t,.045,'hi');
+  if(s===0&&bar%2===0)H.kal(root+24,t,.012)}};ST.passaros={fx:1,bpm:90,gain:2,step(H,bar,s,t){if(Math.random()<.045)H.bird(t,.014);if(s===0&&bar%2===0)H.breeze(t,60/90*8,.008)},prog:[[[40,[64]]]]};
 // revelação da marca: impacto único quando o logo aparece, e o fundo sobe um tom
 ST.revela={fx:1,bpm:118,gain:2.6,prog:[[[45,[64,69,73]]]],step(H,bar,s,t,root,ch,half,E){if(this._d)return;this._d=1;H.impact(t,.34);[73,76,81,85,88].forEach((m,i)=>H.kal(m,t+i*.045,.045));H.breeze(t,2.5,.02)}};
 ST.k4_up=Object.assign({},ST.k4_cont,{prog:ST.k4_cont.prog.map(b=>b.map(([r,c])=>[r+2,c.map(m=>m+2)])),step(H,bar,s,t,root,ch,half,E){ST.k4_cont.step.call(this,H,bar,s,t,root,ch,half,E);if(s===0&&bar%2===0)H.kal(ch[2]+24,t+E*6,.016)}});
