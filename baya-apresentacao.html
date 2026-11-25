@@ -705,7 +705,7 @@ function buildMorph(w,h){const N=Math.round(Math.min(3200,w*1.9)),R=rng(77);cons
  const col=[],len=[],bend=[],delay=[];for(let n=0;n<N;n++){const u=R();col.push(u<.012?'#FEC204':FIB[(R()*FIB.length)|0]);len.push(8+R()*14);bend.push((R()-.5)*5);delay.push(R())}
  return {N,shapes:[fita,espiral,orbita,letra,palavra,bloco,diagonal,soltas],col,len,bend,delay}}
 function fadeLeft(x,w,h,f){x.save();x.globalCompositeOperation='destination-in';const g=x.createLinearGradient(0,0,w,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(f,'#000');g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,w,h);x.restore()}
-function stitchScene(x,w,h,p,now){const s=Math.max(5,Math.floor(Math.min(w/140,h/88)));const cols=Math.ceil(w/s),rows=Math.ceil(h/s);
+function stitchScene(x,w,h,p,now){const s=Math.max(4,Math.floor(Math.min(w/190,h/120)));const cols=Math.ceil(w/s),rows=Math.ceil(h/s);
  const key=cols+'x'+rows;if(stitchScene.k!==key){const cv=document.createElement('canvas');cv.width=cols;cv.height=rows;const q=cv.getContext('2d');const sv=document.querySelector('.f-bayer svg.lgs');if(sv){const sc=Math.min(cols*.86/724,rows*.7/219);q.save();q.translate((cols-724*sc)/2,(rows-219*sc)/2);q.scale(sc,sc);const wd=sv.querySelector('path.wd');q.fillStyle='#2E2F31';if(wd)q.fill(new Path2D(wd.getAttribute('d')));sv.querySelectorAll('.bf path').forEach(pa=>{const f=pa.getAttribute('fill');if(!f||f==='none')return;q.fillStyle=f;q.fill(new Path2D(pa.getAttribute('d')))});q.restore()}stitchScene.m=q.getImageData(0,0,cols,rows).data;stitchScene.k=key}
  const NP=6,PN=p*NP,M=stitchScene.m,g=ease(clamp(PN/.5)),ab=1;
  const wo=ease(clamp((PN-.5)/.06)),fl=clamp((PN-.54)/.42),cr=Math.sin(Math.PI*clamp((PN-.44)/.12));
