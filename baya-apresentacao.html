@@ -1077,7 +1077,7 @@ ST.cordas={bpm:70,gain:2.4,prog:[[[41,[60,64,67,69]]],[[40,[59,62,67,71]]],[[38,
   if(s===12&&bar%2)H.harp(ch[3]+12,t,.03);if(s===14&&bar%2)H.harp(ch[2]+12,t,.025)}};
 // ninho 2 · Kalimba e percussão de mão
 ST.kalimba={bpm:96,gain:3.33,prog:[[[43,[67,71,74]]],[[40,[67,71,76]]],[[36,[67,72,76]]],[[38,[66,69,74]]]],
- step(H,bar,s,t,root,ch,half,E){const v=.85+Math.random()*.15;const pat=[ch[0],ch[2],ch[1]+12,ch[2],ch[0]+12,ch[1],ch[2]+12,ch[1]];if(s%2===0&&(s%8!==6||Math.random()<.6))H.kal(pat[s/2],t,.03*v);
+ step(H,bar,s,t,root,ch,half,E){{const T2=[ch[0]+24,ch[1]+24,ch[2]+24,ch[1]+24];if(Math.random()<.1)H.blip(T2[(Math.random()*4)|0],t,.013);if(s%4===3)H.tick(t,.016);if(Math.random()<.03)H.bird(t,.011)}const v=.85+Math.random()*.15;const pat=[ch[0],ch[2],ch[1]+12,ch[2],ch[0]+12,ch[1],ch[2]+12,ch[1]];if(s%2===0&&(s%8!==6||Math.random()<.6))H.kal(pat[s/2],t,.03*v);
   if(bar%4===3&&s===14)H.kal(ch[0]+24,t,.02);
   if(s===0||s===6||s===10)H.drum(t,s?.16:.24,'lo');if(s===4||s===12)H.drum(t,.1,'hi');if(s%2)H.shaker(t,.02);if(s===0)H.bass(root,t,E*12,.16)}};
 // ninho 3 · Baião suave (sanfona, zabumba e triângulo)
@@ -1089,32 +1089,33 @@ ST.baiao={bpm:92,gain:2.0,prog:[[[43,[59,62,67]]],[[41,[57,60,65]]],[[48,[60,64,
   if(q===2||q===6)ch.forEach((m,i)=>H.gtr(m+12,t+i*.008,.025*v,.5));
   if(bar>=2){const m=this.mel[bar%4].find(n=>n[0]===s);if(m)H.acc(m[1],t,m[2]*E,.045)}}};
 // ---- família kalimba: mesmo estilo, composições diferentes ----
-function KS(c){return{bpm:c.bpm,gain:c.gain||3.3,prog:c.prog,mel:c.mel,
+function LEAD(c,H,m,t,E,def){const L=c.lead||def,d=m[2]*E;if(L==='kal')H.kal(m[1],t,.032);else if(L==='vib')H.vib(m[1],t,.05);else if(L==='flute')H.flute(m[1],t,d*.95,.05);else if(L==='harp')H.harp(m[1],t,.045);else if(L==='chip')H.chip(m[1],t,d*.9,.03,.125,'lead')}
+function KS(c){return{bpm:c.bpm,swing:c.swing,gain:c.gain||3.3,prog:c.prog,mel:c.mel,
  step(H,bar,s,t,root,ch,half,E){const v=.85+Math.random()*.15,T=[ch[0],ch[1],ch[2],ch[0]+12,ch[1]+12,ch[2]+12,ch[0]+24];const mb=c.mel&&bar%8>=4?c.mel[bar%4]:null;
   if(s%2===0&&(s%8!==6||Math.random()<.6))H.kal(T[c.pat[s/2]],t,(mb?.022:.03)*v);
-  if(mb){const m=mb.find(n=>n[0]===s);if(m)H.kal(m[1],t,.032)}
-  if(c.nat){if(s===0&&bar%2===0)H.breeze(t,E*32,.012);if(Math.random()<.035)H.bird(t,.012);if(Math.random()<.03)H.drop(84+(Math.random()*12|0),t,.015)}c.lo.includes(s)&&H.drum(t,s?.16:.24,'lo');c.hi.includes(s)&&H.drum(t,.1,'hi');if(s%2)H.shaker(t,.02);if(s===0)H.bass(root,t,E*12,.16)}}}
+  if(mb){const m=mb.find(n=>n[0]===s);if(m)LEAD(c,H,m,t,E,'kal')}if(c.pad&&s===0)H.pad(ch,t,E*16,.016);if(c.tamb&&[0,2,5,7,8,10,12,13].includes(s))H.tamb(t,.022);
+  if(c.tech){const T2=[ch[0]+24,ch[1]+24,ch[2]+24,ch[1]+24];if(c.tech>1&&s%2===0)H.blip(T2[(s/2+bar)%4],t,.012);else if(Math.random()<.12)H.blip(T2[(Math.random()*4)|0],t,.014);if(s%4===3)H.tick(t,.02)}if(c.birds&&Math.random()<c.birds)H.bird(t,.011);if(c.nat){if(s===0&&bar%2===0)H.breeze(t,E*32,.012);if(Math.random()<.035)H.bird(t,.012);if(Math.random()<.03)H.drop(84+(Math.random()*12|0),t,.015)}c.lo.includes(s)&&H.drum(t,s?.16:.24,'lo');c.hi.includes(s)&&H.drum(t,.1,'hi');if(s%2)H.shaker(t,.02);if(s===0)H.bass(root,t,E*12,.16)}}}
 ST.k_abertura=KS({bpm:92,prog:[[[50,[62,66,69]]],[[47,[62,66,71]]],[[43,[62,67,71]]],[[45,[61,64,69]]]],pat:[0,2,4,2,3,5,4,1],lo:[0,6,10],hi:[4,12],
  mel:[[[0,78,4],[4,81,4],[8,83,8]],[[0,81,6],[6,78,2],[8,74,8]],[[0,79,4],[4,78,4],[8,74,4],[12,71,4]],[[0,76,12]]]});
-ST.k_lacada=KS({bpm:88,prog:[[[41,[65,69,72]]],[[38,[65,69,74]]],[[46,[65,70,74]]],[[48,[64,67,72]]]],pat:[0,1,2,3,4,5,4,3],lo:[0,8],hi:[12],
+ST.k_lacada=KS({bpm:80,swing:.62,pad:1,lead:'harp',tech:2,prog:[[[41,[65,69,72]]],[[38,[65,69,74]]],[[46,[65,70,74]]],[[48,[64,67,72]]]],pat:[0,1,2,3,4,5,4,3],lo:[0],hi:[],
  mel:[[[0,81,8],[8,79,4],[12,77,4]],[[0,77,12],[12,74,4]],[[0,74,4],[4,77,4],[8,82,8]],[[0,79,16]]]});
-ST.k_ninho=KS({bpm:100,nat:1,prog:[[[40,[64,68,71]]],[[45,[64,69,73]]],[[37,[64,68,73]]],[[42,[66,69,73]]]],pat:[0,4,2,3,1,5,4,6],lo:[0,10],hi:[4,7,12],
+ST.k_ninho=KS({bpm:100,nat:1,lead:'flute',tamb:1,prog:[[[40,[64,68,71]]],[[45,[64,69,73]]],[[37,[64,68,73]]],[[42,[66,69,73]]]],pat:[0,4,2,3,1,5,4,6],lo:[0,10],hi:[4,7,12],
  mel:[[[0,80,2],[2,83,2],[4,85,6],[12,83,4]],[[0,81,4],[4,80,4],[8,76,8]],[[0,78,2],[2,80,2],[4,83,8],[12,81,4]],[[0,80,4],[4,78,4],[8,76,8]]]});
 // ---- família bossa jazz: mesmo estilo, composições diferentes ----
-function BS(c){return{bpm:c.bpm,gain:c.gain||1.52,prog:c.prog,mel:c.mel,
- step(H,bar,s,t,root,ch,half,E){if(c.nat){if(s===0&&bar%2===0)H.breeze(t,E*32,.012);if(Math.random()<.035)H.bird(t,.012);if(Math.random()<.03)H.drop(84+(Math.random()*12|0),t,.015)}if(s%2){H.shaker(t,.022);return}const e=s/2,CL=c.cl[bar%2],v=.9+Math.random()*.1;H.shaker(t,e%2?.05:.03);
+function BS(c){return{bpm:c.bpm,swing:c.swing,gain:c.gain||1.52,prog:c.prog,mel:c.mel,
+ step(H,bar,s,t,root,ch,half,E){if(c.tech){const T2=[ch[0]+24,ch[1]+24,ch[2]+24,ch[1]+24];if(c.tech>1&&s%2===0)H.blip(T2[(s/2+bar)%4],t,.012);else if(Math.random()<.12)H.blip(T2[(Math.random()*4)|0],t,.014);if(s%4===3)H.tick(t,.02)}if(c.birds&&Math.random()<c.birds)H.bird(t,.011);if(c.nat){if(s===0&&bar%2===0)H.breeze(t,E*32,.012);if(Math.random()<.035)H.bird(t,.012);if(Math.random()<.03)H.drop(84+(Math.random()*12|0),t,.015)}if(s%2){H.shaker(t,.022);return}const e=s/2,CL=c.cl[bar%2],v=.9+Math.random()*.1;H.shaker(t,e%2?.05:.03);
   if(e===0||e===3||e===4||e===7)H.kick(t,e===0||e===4?.22:.12);if(CL.includes(e))H.rim(t,.06);
   if(e===0)H.bass(root,t,E*5.2,.32*v);if(e===3)H.bass(root+7,t,E*1.8,.22*v);if(e===4)H.bass(half?root:root+7,t,E*5.2,.28*v);if(e===7)H.bass(root,t,E*1.8,.2*v);
   if(CL.includes(e))ch.forEach((m,i)=>H.ep(m,t+i*.006,E*(e===6||e===5?3.2:1.8),.045*v));
-  if(bar%8>=4){const m=c.mel[bar%4].find(n=>n[0]===s);if(m)H.vib(m[1],t,.05)}}}}
-ST.b_bayer=BS({bpm:124,cl:[[0,3,6],[2,5]],prog:[[[38,[62,66,69,73]]],[[47,[62,66,69,71]]],[[40,[62,67,71,74]]],[[45,[61,67,71,76]]]],
+  if(bar%8>=4){const m=c.mel[bar%4].find(n=>n[0]===s);if(m)LEAD(c,H,m,t,E,'vib')}if(c.pad&&s===0)H.pad(ch,t,E*16,.014);if(c.harpArp&&s<9&&bar%2===0){const A=[ch[0],ch[1],ch[2],ch[3],ch[0]+12,ch[1]+12,ch[2]+12,ch[3]+12,ch[0]+24];H.harp(A[s],t,.022)}if(c.tamb&&[0,2,5,7,8,10,12,13].includes(s))H.tamb(t,.025);}}}
+ST.b_bayer=BS({bpm:128,tech:1,birds:.035,lead:'chip',cl:[[0,3,6],[2,5]],prog:[[[38,[62,66,69,73]]],[[47,[62,66,69,71]]],[[40,[62,67,71,74]]],[[45,[61,67,71,76]]]],
  mel:[[[0,81,4],[6,78,2],[8,76,4]],[[0,78,6],[8,74,4],[12,71,4]],[[2,79,2],[4,78,2],[6,76,2],[8,74,6]],[[0,73,8],[10,76,4]]]});
-ST.b_lacada=BS({bpm:116,cl:[[0,3,6],[1,4]],prog:[[[41,[64,67,69,72]]],[[38,[65,69,72,76]]],[[43,[65,69,71,74]]],[[36,[64,67,70,74]]]],
+ST.b_lacada=BS({bpm:100,swing:.6,pad:1,harpArp:1,tech:2,cl:[[0,3,6],[1,4]],prog:[[[41,[64,67,69,72]]],[[38,[65,69,72,76]]],[[43,[65,69,71,74]]],[[36,[64,67,70,74]]]],
  mel:[[[0,84,8],[8,81,4],[12,79,4]],[[0,77,8],[10,76,6]],[[0,74,4],[4,77,4],[8,79,8]],[[0,76,12]]]});
-ST.b_ninho=BS({bpm:118,nat:1,cl:[[0,3,6],[2,5]],prog:[[[40,[63,66,68,71]]],[[45,[64,68,71,73]]],[[37,[64,68,71,75]]],[[42,[64,68,69,73]]]],
+ST.b_ninho=BS({bpm:118,nat:1,lead:'flute',tamb:1,cl:[[0,3,6],[2,5]],prog:[[[40,[63,66,68,71]]],[[45,[64,68,71,73]]],[[37,[64,68,71,75]]],[[42,[64,68,69,73]]]],
  mel:[[[0,83,2],[2,85,2],[4,87,8]],[[0,85,4],[4,83,4],[8,80,8]],[[0,78,2],[2,80,2],[4,83,8]],[[0,81,4],[4,80,4],[8,76,8]]]});
 function makeEngine(C,out,ST1){
- const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=85;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
+ const bus=C.createGain();const hp=C.createBiquadFilter();hp.type='highpass';hp.frequency.value=115;hp.Q.value=.6;const lsh=C.createBiquadFilter();lsh.type='lowshelf';lsh.frequency.value=160;lsh.gain.value=-5;const lp=C.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.Q.value=.3;
  const len=C.sampleRate*2.4,b=C.createBuffer(2,len,C.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}const rev=C.createConvolver();rev.buffer=b;
  const wet=C.createGain();wet.gain.value=.28;const dry=C.createGain();dry.gain.value=.85;bus.connect(hp);hp.connect(lsh);lsh.connect(lp);lp.connect(dry);lp.connect(rev);rev.connect(wet);dry.connect(out);wet.connect(out);
  const nb=C.createBuffer(1,C.sampleRate*.6,C.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
@@ -1123,12 +1124,12 @@ function makeEngine(C,out,ST1){
  const noise=(t,dur,ft,ff,q,v,dec)=>{const s=C.createBufferSource();s.buffer=nb;const f=C.createBiquadFilter();f.type=ft;f.frequency.value=ff;f.Q.value=q;const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dec);s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+dur)};
  const H={
   ep(m,t,d,v){[[1,1,'sine'],[2,.22,'sine'],[1,.12,'triangle']].forEach(([mul,a,tp])=>{const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.008);g.gain.exponentialRampToValueAtTime(v*a*.35,t+.35);g.gain.setValueAtTime(v*a*.35,t+d);g.gain.exponentialRampToValueAtTime(.0001,t+d+.35);g.connect(bus);osc(tp,hz(m)*mul,t,d+.4,g)})},
-  bass(m,t,d,v){v*=.55;if(m<40)m+=12;const f=C.createBiquadFilter();f.type='lowpass';f.frequency.value=700;const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(v*.45,t+.25);g.gain.setValueAtTime(v*.45,t+d*.85);g.gain.exponentialRampToValueAtTime(.0001,t+d+.12);f.connect(g);g.connect(bus);osc('triangle',hz(m),t,d+.15,f);osc('sine',hz(m),t,d+.15,f);const g2=C.createGain();g2.gain.value=.3;g2.connect(f);osc('sine',hz(m)*2,t,d+.15,g2)},
+  bass(m,t,d,v){v*=.42;while(m<48)m+=12;const f=C.createBiquadFilter();f.type='lowpass';f.frequency.value=700;const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.012);g.gain.exponentialRampToValueAtTime(v*.45,t+.25);g.gain.setValueAtTime(v*.45,t+d*.85);g.gain.exponentialRampToValueAtTime(.0001,t+d+.12);f.connect(g);g.connect(bus);osc('triangle',hz(m),t,d+.15,f);osc('sine',hz(m),t,d+.15,f);const g2=C.createGain();g2.gain.value=.3;g2.connect(f);osc('sine',hz(m)*2,t,d+.15,g2)},
   shaker(t,v){noise(t,.09,'bandpass',8200,.9,v,.07)},
   tamb(t,v){const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.06);g.connect(bus);const f=C.createBiquadFilter();f.type='bandpass';f.frequency.value=2600;f.Q.value=6;f.connect(g);osc('square',1320,t,.07,f);noise(t,.05,'highpass',5000,.7,v*.6,.04)},
   surdo(t,v,m){v*=.65;m+=7;const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.55);g.connect(bus);const o=osc('sine',hz(m)*1.6,t,.6,g);o.frequency.exponentialRampToValueAtTime(hz(m),t+.08)},
   rim(t,v){const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.035);g.connect(bus);const f=C.createBiquadFilter();f.type='bandpass';f.frequency.value=1800;f.Q.value=4;f.connect(g);osc('square',1650,t,.05,f);noise(t,.04,'highpass',3000,.5,v*.5,.03)},
-  kick(t,v){v*=.6;const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.16);g.connect(bus);const o=osc('sine',140,t,.18,g);o.frequency.exponentialRampToValueAtTime(75,t+.09)},
+  kick(t,v){v*=.45;const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.16);g.connect(bus);const o=osc('sine',180,t,.18,g);o.frequency.exponentialRampToValueAtTime(110,t+.08)},
   ride(t,v){noise(t,.5,'bandpass',7400,2.5,v,.45);[3150,4720,5310].forEach(f=>{const g=C.createGain();g.gain.setValueAtTime(v*.18,t);g.gain.exponentialRampToValueAtTime(.0001,t+.5);g.connect(bus);osc('sine',f,t,.52,g)})},
   hat(t,v){noise(t,.06,'highpass',7000,.7,v,.045)},
   brush(t,d,v){const s=C.createBufferSource();s.buffer=nb;s.loop=true;const f=C.createBiquadFilter();f.type='bandpass';f.frequency.value=4500;f.Q.value=.6;const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.4);g.gain.linearRampToValueAtTime(0,t+d);s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+d+.05)},
@@ -1148,6 +1149,8 @@ function makeEngine(C,out,ST1){
   bird(t,v){const n=2+(Math.random()*3|0),b=2400+Math.random()*1400;for(let i=0;i<n;i++){const t0=t+i*(.07+Math.random()*.05),g=C.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+.01);g.gain.exponentialRampToValueAtTime(.0001,t0+.09);g.connect(bus);const o=osc('sine',b,t0,.1,g);o.frequency.setValueAtTime(b*(.9+Math.random()*.2),t0);o.frequency.exponentialRampToValueAtTime(b*(1.25+Math.random()*.3),t0+.05);o.frequency.exponentialRampToValueAtTime(b*.95,t0+.09)}},
   breeze(t,d,v){const s=C.createBufferSource();s.buffer=nb;s.loop=true;const f=C.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(900,t);f.frequency.linearRampToValueAtTime(1700,t+d*.5);f.frequency.linearRampToValueAtTime(1000,t+d);f.Q.value=.7;const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.5);g.gain.linearRampToValueAtTime(0,t+d);s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+d+.05)},
   drop(m,t,v){const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);g.connect(bus);const o=osc('sine',hz(m),t,.2,g);o.frequency.exponentialRampToValueAtTime(hz(m)*1.5,t+.12)},
+  blip(m,t,v,d){d=d||.07;const f=C.createBiquadFilter();f.type='lowpass';f.frequency.value=3200;const g=C.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);f.connect(g);g.connect(bus);osc('square',hz(m),t,d+.02,f);const g2=C.createGain();g2.gain.value=.5;g2.connect(g);osc('sine',hz(m)*2,t,d+.02,g2)},
+  tick(t,v){noise(t,.015,'highpass',9000,.7,v,.008)},
   flute(m,t,d,v){const g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.07);g.gain.setValueAtTime(v*.9,t+d*.8);g.gain.linearRampToValueAtTime(0,t+d+.12);g.connect(bus);const o=osc('sine',hz(m),t,d+.15,g);const lf=C.createGain();lf.gain.value=hz(m)*.006;lf.connect(o.frequency);osc('sine',5,t+.15,d,lf);const g2=C.createGain();g2.gain.value=.08;g2.connect(g);osc('triangle',hz(m)*2,t,d+.15,g2);noise(t,d,'bandpass',hz(m)*2,1.2,v*.25,Math.min(.25,d))}};
  const S=ST1,E16=60/S.bpm/4;if(S.gain){const sg=C.createGain();sg.gain.value=S.gain;dry.disconnect();wet.disconnect();dry.connect(sg);wet.connect(sg);sg.connect(out)}let bar=0,st=0,next=0;
  function step(base){const ph=S.prog[bar%S.prog.length],half=ph.length>1&&st>=(S.steps||16)/2?1:0,[root,ch]=ph[half];const nx=S.prog[(bar+1)%S.prog.length][0][0];const t=base+(S.swing&&st%4===2?(S.swing-.5)*2*E16:0);S.step(H,bar,st,t,root,ch,half,E16,nx);st++;if(st===(S.steps||16)){st=0;bar++}}
