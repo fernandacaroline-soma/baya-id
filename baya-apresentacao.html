@@ -1227,7 +1227,7 @@ ST.k4_abertura={bpm:118,gain:2.6,sync:60/118*4,prog:[[[40,[64,68,71]]],[[47,[63,
   if(bar===2&&s===0)H.riser(t,E*32,.03);if(bar===4&&s===0){H.impact(t,.32);ch.forEach((m,i)=>H.kal(m+12,t+i*.012,.04))}
   if(build&&s%4===0)H.drum(t,.12+(bar-2)*.05+s*.004,'lo');if(build)H.shaker(t,s%2?.015:.03);
   if(full){if([0,6,8,11].includes(s))H.drum(t,s===0||s===8?.26:.17,'lo');if(s===4||s===12)H.drum(t,.15,'hi');if(s===14&&bar%2)H.drum(t,.1,'hi');H.shaker(t,s%2?.024:(s%4?.05:.032));if(s%4===2)H.tick(t,.015);
-   if(s===0)H.bass(root,t,E*6,.22*v);if(s===6)H.bass(root,t,E*2,.14*v);if(s===8)H.bass(root+7,t,E*6,.2*v);
+   if(s===0)H.bass(root,t,E*6,.11*v);if(s===6)H.bass(root,t,E*2,.07*v);if(s===8)H.bass(root+7,t,E*6,.1*v);
    if(bar>=6){const m=this.mel[bar%4].find(n=>n[0]===s);if(m)H.kal(m[1],t,.04)}}
   if(full&&bar%8===7&&s>=12)H.drum(t,.08+(s-12)*.03,'hi')}};
 // fundo neutro para a fala: mesmo andamento e tom da abertura, sem melodia, sem viradas, dinâmica constante
@@ -1322,7 +1322,7 @@ function start(){if(started)return;started=true;const C=window.AudioContext||win
    if(v>0||e.g.gain.value>.004)e.eng.tick(ac.currentTime,.25);else e.eng.reset()}upd()},60);upd(true)}
 function anyOn(){const T=targets();return Object.keys(T).length>0}
 function upd(){if(!ac)return;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setTargetAtTime(muted?0:VOL*effVol()*2,ac.currentTime,.3);btn.classList.toggle('off',muted||!started);wrap.classList.toggle('hid',!anyOn()&&!muted);rng.value=Math.round(effVol()*100);window.__bayaVol=Math.round(effVol()*100);window.__bayaSom=!started?'idle':(muted?'off':'on')}
-let userVol=false;const effVol=()=>userVol?uv:((onFirst()&&!ducked)?.5:.22);function setVol(x){userVol=true;uv=Math.max(0,Math.min(1,x));if(uv>0&&muted)muted=false;upd()}
+let userVol=false;const effVol=()=>userVol?uv:((onFirst()&&!ducked)?.4:.2);function setVol(x){userVol=true;uv=Math.max(0,Math.min(1,x));if(uv>0&&muted)muted=false;upd()}
 rng.addEventListener('input',()=>{setVol(rng.value/100)});rng.addEventListener('pointerdown',e=>e.stopPropagation());
 window.__bayaVolStep=d=>{if(!started){start();if(ac&&ac.state==='suspended')ac.resume()}setVol(Math.round((effVol()+d)*20)/20)};
 function toggle(){if(!started){muted=false;start();if(ac&&ac.state==='suspended')ac.resume();return}muted=!muted;if(!muted&&ac.state==='suspended')ac.resume();upd()}
