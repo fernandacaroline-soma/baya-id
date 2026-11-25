@@ -1005,7 +1005,8 @@ btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" strok
 const css=document.createElement('style');css.textContent='#somWrap{position:fixed;right:22px;top:18px;z-index:9999;display:flex;align-items:center;gap:10px;opacity:.55;transition:opacity .3s}#somWrap:hover,#somWrap:focus-within{opacity:1}#somVol{width:0;opacity:0;transition:width .3s,opacity .3s;accent-color:#C9CCD1;cursor:pointer}#somWrap:hover #somVol,#somWrap:focus-within #somVol{width:110px;opacity:1}#somWrap.hid{opacity:0;pointer-events:none}#somFam{padding:8px 12px;border-radius:999px;border:1px solid rgba(150,155,162,.35);background:rgba(20,21,24,.42);color:#E9EAEC;font:500 12px/1 Inter,system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(8px)}#somBtn{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 11px;border-radius:999px;border:1px solid rgba(150,155,162,.35);background:rgba(20,21,24,.42);color:#E9EAEC;font:500 12px/1 Inter,system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}#somBtn .x{display:none}#somBtn.off .x{display:block}#somBtn.off .w1,#somBtn.off .w2{display:none}';
 document.head.appendChild(css);document.body.appendChild(wrap);
 const first=()=>document.querySelector('body>section');
-function amt(){const f=document.querySelector('.f-bayer');if(!f)return 0;const r=f.getBoundingClientRect();return Math.max(0,Math.min(1,(r.top-innerHeight*.15)/(innerHeight*.6)))}
+let ducked=false;const onFirst=()=>{const f=first();return !!f&&f.getBoundingClientRect().bottom>innerHeight*.5};
+function amt(){const f=document.querySelector('.f-bayer');if(!f)return 0;const r=f.getBoundingClientRect();const k=Math.max(0,Math.min(1,(r.top-innerHeight*.15)/(innerHeight*.6)));return k*(ducked||!onFirst()?.35:1.25)}
 const hz=m=>440*Math.pow(2,(m-69)/12);
 const ST={};
 // 1 · Bossa jazz (atual)
@@ -1288,6 +1289,7 @@ window.__bayaSomRender=async(s,k)=>{const C=new OfflineAudioContext(2,44100*s,44
 // começa no primeiro gesto da pessoa (clique ou tecla), se estiver na abertura
 const kick=e=>{if(!e.isTrusted||e.target===btn)return;if(e.type==='keydown'&&(e.key==='m'||e.key==='M'))return;if(!started)start();removeEventListener('pointerdown',kick,true);removeEventListener('keydown',kick,true)};
 addEventListener('pointerdown',kick,true);addEventListener('keydown',kick,true);
+addEventListener('keydown',e=>{if(ducked||muted||!onFirst())return;if(!['ArrowDown','PageDown',' ','ArrowRight'].includes(e.key)||(e.key===' '&&e.shiftKey))return;if(e.isTrusted&&!started){start();if(ac&&ac.state==='suspended')ac.resume()}if(!started)return;ducked=true;e.preventDefault();e.stopImmediatePropagation();upd()},true);
 addEventListener('keydown',e=>{if((e.key==='m'||e.key==='M')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){toggle()}});
 
 })();
