@@ -995,7 +995,8 @@ function state(){const c=current();const L=stops();let idx=-1;if(c&&c.key)idx=L.
 let ch=null;try{ch=new BroadcastChannel('baya-apresentador')}catch(e){}
 let last='';function send(force){let s;try{s=state()}catch(e){return}const sig=s.key+'|'+s.num+'|'+s.t;if(!force&&sig===last)return;last=sig;s.at=Date.now();try{ch&&ch.postMessage(s)}catch(e){}try{localStorage.setItem('baya-ap-state',JSON.stringify(s))}catch(e){}}
 let raf=0;addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;send(false)})},{passive:true});setInterval(()=>send(false),700);
-if(ch)ch.onmessage=e=>{if(e.data==='hello')send(true)};addEventListener('storage',e=>{if(e.key==='baya-ap-hello')send(true)});setTimeout(()=>send(true),800);
+const nav=d=>{const k=d==='prev'?'ArrowUp':'ArrowDown';try{document.body.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:k,bubbles:true,cancelable:true}))}catch(e){}};
+if(ch)ch.onmessage=e=>{if(e.data==='hello')send(true);else if(e.data&&e.data.nav)nav(e.data.nav)};addEventListener('storage',e=>{if(e.key==='baya-ap-hello')send(true);else if(!ch&&e.key==='baya-ap-nav'&&e.newValue)nav(e.newValue.split('|')[0])});setTimeout(()=>send(true),800);
 })();
 
 // resultados ao vivo
