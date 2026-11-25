@@ -1270,7 +1270,7 @@ window.__bayaFamNext=()=>window.__bayaFam(FAM==='bossa'?'kalimba':'bossa');windo
 function cover(sel){let c=0;document.querySelectorAll(sel).forEach(el=>{const r=el.getBoundingClientRect();c+=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top))});return Math.min(1,c/innerHeight)}
 function winner(){const fW=document.getElementById('fW');if(!fW||fW.style.display==='none')return null;const d=[...fW.querySelectorAll('.fwin')].find(x=>x.style.display!=='none');return d?d.dataset.k:null}
 function targets(){const T={};const add=(k,v)=>{if(v>0)T[k]=Math.max(T[k]||0,v)};add(PICK,amt());
- for(const id in IDS)add(IDS[id],IDV*cover('.f-'+id));
+ for(const id in IDS){let f=1;const L=[...document.querySelectorAll('.f-'+id)].pop();if(L){const r=L.getBoundingClientRect();if(r.top<innerHeight*.5)f=Math.max(0,Math.min(.35,(r.bottom-innerHeight*.6)/innerHeight*.35))}add(IDS[id],IDV*cover('.f-'+id)*f)}
  const fim=document.querySelector('[data-scroll="fim"]');if(fim){const r=fim.getBoundingClientRect();const f=Math.max(0,Math.min(1,(Math.min(innerHeight,r.bottom)-Math.max(0,r.top))/innerHeight));const w=winner();add(w?IDS[w]:PICK,FINV*f)}
  return T}
 const ENG={};window.__bayaSomG=()=>Object.fromEntries(Object.entries(ENG).map(([k,e])=>[k,+e.g.gain.value.toFixed(3)]));window.__bayaSomT=()=>targets();
