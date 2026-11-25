@@ -651,6 +651,8 @@ function fadeLeft(x,w,h,f){x.save();x.globalCompositeOperation='destination-in';
 function stitchScene(x,w,h,p,now){const s=Math.max(6,Math.floor(Math.min(w/70,h/(BIRD.length+14))));const cols=Math.ceil(w/s),rows=Math.ceil(h/s);const bx=Math.round((cols-46)/2),by=Math.round((rows-BIRD.length)/2);
  const key=cols+'x'+rows;if(stitchScene.k!==key){const cv=document.createElement('canvas');cv.width=cols;cv.height=rows;const q=cv.getContext('2d');const sv=document.querySelector('.f-bayer svg.lgs');if(sv){const sc=Math.min(cols*.86/724,rows*.7/219);q.save();q.translate((cols-724*sc)/2,(rows-219*sc)/2);q.scale(sc,sc);const wd=sv.querySelector('path.wd');q.fillStyle='#2E2F31';if(wd)q.fill(new Path2D(wd.getAttribute('d')));sv.querySelectorAll('.bf path').forEach(pa=>{const f=pa.getAttribute('fill');if(!f||f==='none')return;q.fillStyle=f;q.fill(new Path2D(pa.getAttribute('d')))});q.restore()}stitchScene.m=q.getImageData(0,0,cols,rows).data;stitchScene.k=key}
  const NP=6,PN=p*NP,M=stitchScene.m,g=ease(clamp(PN/.5)),ab=ease(clamp((PN-.15)/.45));
+ const BH=BIRD.length,wo=ease(clamp((PN-.42)/.12)),fl=clamp((PN-.54)/.36),fe=fl*fl;const flap=fl>0?Math.sin(now/110)*.55:Math.sin(now/600)*.08*wo;
+ const shx=19,shy=Math.round(BH*.42),WL=BH*.62*wo,wa=-Math.PI/2-.35+flap-(1-wo)*.9;const fox=Math.round(fe*cols*.75),foy=-Math.round(fe*rows*1.1)+Math.round(fl>0?Math.sin(now/110)*1.2:0);
  const gr=ease(clamp((PN-2.88)/.5));if(!stitchScene.tc||stitchScene.tc.width!==cols||stitchScene.tc.height!==rows){stitchScene.tc=document.createElement('canvas');stitchScene.tc.width=cols;stitchScene.tc.height=rows}
  const tq=stitchScene.tc.getContext('2d');tq.clearRect(0,0,cols,rows);const R0=rng(5);const MAXD=7,sw=Math.sin(now/1800)*.04;
  const br=(x0,y0,a,len,d)=>{if(d>MAXD)return;const lim=gr*(MAXD+1)-d;if(lim<=0)return;const L=len*Math.min(1,lim);const x1=x0+Math.cos(a)*L,y1=y0+Math.sin(a)*L;tq.strokeStyle='#5a4a3a';tq.lineWidth=Math.max(1,(MAXD-d+1)*.55*rows/45);tq.lineCap='round';tq.beginPath();tq.moveTo(x0,y0);tq.lineTo(x1,y1);tq.stroke();
@@ -661,7 +663,7 @@ function stitchScene(x,w,h,p,now){const s=Math.max(6,Math.floor(Math.min(w/70,h/
  const ph=now/4000;const bt=now/1000+p*4,tt=bt*.35,mn=Math.min(w,h);const BL=[[.9,.7,0,.2],[.6,1.1,2,.15],[1.3,.5,4,.17],[.45,.8,1,.12],[1.1,1.3,3,.1]].map(([a,bb,p2,r])=>[w*(.5+.42*Math.sin(tt*a+p2)),h*(.5+.42*Math.cos(tt*bb+p2*1.3)),mn*r*(.45+1.1*(.5+.5*Math.sin(bt*.9+p2*1.7)))]);
  const bg=(i,j,b,amt)=>{const v=(.5+.25*Math.sin(i/6+j/9-ph)+.25*Math.sin(i/9-j/6+ph*.5))*amt;return v*16>b+.5?((i*7+j*13)%113==0?'#FEC204':'#C3C8CF'):null};
  const P=(n,i,j,b)=>{
-  if(n===0){const X0=i*s+s/2,Y0=j*s+s/2;let fb=0;for(const q of BL){const dx=X0-q[0],dy=Y0-q[1];fb+=Math.exp(-(dx*dx+dy*dy)/(q[2]*q[2]))}if((.97-1.25*fb)*16<=b+.5)return null;const ch=(BIRD[j-by]||'')[i-bx];if(ch&&ch!=='.'&&b<ab*16)return BCOL[ch];return bg(i,j,b,.55)}
+  if(n===0){const X0=i*s+s/2,Y0=j*s+s/2;let fb=0;for(const q of BL){const dx=X0-q[0],dy=Y0-q[1];fb+=Math.exp(-(dx*dx+dy*dy)/(q[2]*q[2]))}if((.97-1.25*fb)*16<=b+.5)return null;const li=i-bx-fox,lj=j-by-foy;const ch=(BIRD[lj]||'')[li];if(ch&&ch!=='.'&&b<ab*16)return BCOL[ch];if(wo>0){const dx=li-shx,dy=lj-shy,r=Math.hypot(dx,dy),a=Math.atan2(dy,dx);let da=a-wa;da=Math.atan2(Math.sin(da),Math.cos(da));if(r<WL&&r>1.5&&da>-.42&&da<.2&&r<WL*(1-.5*Math.abs(da+.11)))return r>WL*.72?BCOL.K:BCOL.Y}return bg(i,j,b,.55)}
   if(n===1){const o=(j*cols+i)*4;if(M[o+3]>110){const r=M[o],g2=M[o+1];return r>200&&g2>150?'#FEC204':r>110?'#944215':'#2E2F31'}return bg(i,j,b,.3)}
   if(n===2){const u=i/cols,w2=j/rows;const v=clamp(.5+.38*Math.sin(u*5.5+Math.sin(w2*3.2+now/2600)*1.4-now/2200)*Math.cos(w2*2.4-u*1.5+now/3400)+.12*Math.sin(u*2-w2*3+now/1900));return v*16>b+.5?((v>.86&&(i*7+j*3)%11==0)?'#FEC204':'#A3A8B0'):null}
   if(n===3){const o=(j*cols+i)*4;if(TM[o+3]>90){const r=TM[o];return r>200?((i*5+j*7)%13==0?'#FEC204':'#B9C3A0'):'#9C948A'}return bg(i,j,b,.22)}
@@ -699,7 +701,7 @@ const ONE={on:false,id:'bayer',ids:['bayer','lacada','ninho'],
   let sx=0,sy=0,t0=0,inId=false;addEventListener('touchstart',e=>{if(!this.on)return;const tt=e.touches[0];sx=tt.clientX;sy=tt.clientY;t0=Date.now();const el=document.elementFromPoint(sx,sy);inId=!!(el&&el.closest('.f-bayer,.f-lacada,.f-ninho,#sw'))},{passive:true});
   addEventListener('touchend',e=>{if(!this.on||!inId)return;const tt=e.changedTouches[0];const dx=tt.clientX-sx,dy=tt.clientY-sy;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.6&&Date.now()-t0<700){const i=this.ids.indexOf(this.id);const n=dx<0?Math.min(2,i+1):Math.max(0,i-1);if(n!==i)this.set(this.ids[n])}},{passive:true});
   addEventListener('keydown',e=>{if(!this.on)return;const blk=[...document.querySelectorAll('.f-'+this.id)];const r0=blk[0].getBoundingClientRect(),r1=blk[blk.length-1].getBoundingClientRect();if(r0.top>innerHeight*.5||r1.bottom<innerHeight*.5)return;const i=this.ids.indexOf(this.id);if(e.key==='ArrowRight'&&i<2)this.set(this.ids[i+1]);if(e.key==='ArrowLeft'&&i>0)this.set(this.ids[i-1])})}};
-ONE.init();addEventListener('load',()=>{try{window.focus()}catch(e){}});addEventListener('pointerdown',()=>{try{window.focus()}catch(e){}},{passive:true});
+ONE.init();
 const S={};document.querySelectorAll('[data-scroll]').forEach(el=>S[el.dataset.scroll]=el);
 const prog=el=>{const r=el.getBoundingClientRect();return clamp(-r.top/(r.height-innerHeight))};
 
@@ -771,7 +773,7 @@ function frame(now){
   else if(k==='ninho'){const key=w+'x'+h;if(!c._L||c._k!==key){const pth=[];const sd=+c.dataset.seed;for(let X=-60;X<=w+60;X+=10)pth.push([X,h*.5+Math.sin(X/w*Math.PI*1.6+sd)*h*.22]);c._L=strands(pth,Math.min(h*.2,60),Math.round(w*1.6+h),31+sd,[8,20]);c._k=key}x.clearRect(0,0,w,h);drawStr(x,c._L,Math.round(ease(p)*c._L.length),1.3);softEdges(x,w,h,c)}});
 
  // cena: ponto cruz — pássaro e outras possibilidades guiadas pelo scroll
- document.querySelectorAll('[data-scene]').forEach(sec=>{if(!vis(sec))return;const c=sec.querySelector('canvas');const [x,w,h]=fit(c);const r=sec.getBoundingClientRect();if(r.top>innerHeight*.9)sec._t0=null;if(sec._t0==null&&r.top<innerHeight*.35)sec._t0=now;const p=sec._t0==null?0:clamp((now-sec._t0)/19200);const nm=stitchScene(x,w,h,p,now);const cp=sec.querySelector('.cp');if(cp&&cp.textContent!==nm)cp.textContent=nm});
+ document.querySelectorAll('[data-scene]').forEach(sec=>{if(!vis(sec))return;const c=sec.querySelector('canvas');const [x,w,h]=fit(c);const r=sec.getBoundingClientRect();if(r.top>innerHeight*.9)sec._t0=null;if(sec._t0==null&&r.top<innerHeight*.35)sec._t0=now;const tt=sec._t0==null?0:now-sec._t0;const p=clamp((tt<6400?tt/6400:1+(tt-6400)/3200)/6);const nm=stitchScene(x,w,h,p,now);const cp=sec.querySelector('.cp');if(cp&&cp.textContent!==nm)cp.textContent=nm});
  // conceito: historias
  document.querySelectorAll('[data-story]').forEach(sec=>{if(!vis(sec))return;const k=sec.dataset.story;const p=prog(sec);const c=sec.querySelector('canvas');const [x,w,h]=fit(c);
   const st=sec.querySelectorAll('.step');const idx=Math.min(st.length-1,Math.floor(p*st.length*0.999));st.forEach((e,i)=>e.classList.toggle('cur',i===idx));
@@ -814,7 +816,7 @@ function finalWin(k){const fW=document.getElementById('fW'),fL=document.getEleme
  fW.style.display='block';fL.style.display='none';img.style.display='none';sec.querySelector('.shade').style.display='none';fW.querySelectorAll('.fwin').forEach(d=>d.style.display=d.dataset.k===k?'flex':'none')}
 window.finalWin=finalWin;
 // resultados ao vivo
-(function(){const keys=['bayer','lacada','ninho'],tot=document.getElementById('rtot'),box=document.getElementById('rbars');let API='';
+(function(){if(!(location.protocol==='file:'||/github\.io$/.test(location.hostname)))return;const keys=['bayer','lacada','ninho'],tot=document.getElementById('rtot'),box=document.getElementById('rbars');let API='';
  async function api(){try{const r=await fetch('https://fernandacaroline-soma.github.io/baya-id/api.txt',{cache:'no-store'});if(r.ok){const u=(await r.text()).trim();if(/^https:\/\/script\.google\.com\//.test(u))API=u}}catch(e){}return API}
  async function load(){if(!API&&!(await api())){tot.textContent='Resultados ao vivo aparecem aqui assim que a votação abrir.';return}try{const c=await (await fetch(API,{cache:'no-store'})).json();box.hidden=false;const vb=document.querySelector('#resultados .vbtn');if(vb)vb.style.display='none';const n=keys.reduce((a,k)=>a+(+c[k]||0),0);const mx=Math.max(...keys.map(k=>+c[k]||0));
   keys.forEach(k=>{const v=+c[k]||0,p=n?Math.round(v/n*100):0;const row=box.querySelector('.rb[data-k='+k+']');if(!row)return;row.querySelector('.tr i').style.width=p+'%';row.querySelector('.pc').textContent=p+'%';row.querySelector('.nm span').textContent=v+(v===1?' voto':' votos');row.classList.toggle('win',n>0&&v===mx)});const W=n>0?keys.reduce((a,k)=>(+c[k]||0)>(+c[a]||0)?k:a,keys[0]):null;finalWin(W);
