@@ -975,6 +975,28 @@ function finAnim(c,k,now){const [x,w,h]=fit(c);if(w<10)return;const st=c._fs||(c
 if(window.FIN_PREVIEW){[...document.body.children].forEach(e=>{if(e.tagName!=='SCRIPT')e.style.display='none'});const fW=document.getElementById('fW');const box=document.createElement('div');box.id='finPrev';
  fW.querySelectorAll('.fwin').forEach(d=>{const cl=d.cloneNode(true);cl.style.cssText+=';display:flex;position:relative;height:100vh;width:100%';const fc=cl.querySelector('.fc3');if(fc){fc.style.opacity=1;fc.style.transform='none'}box.appendChild(cl)});document.body.prepend(box)}
 
+// ===== envia a tela atual para o modo apresentador (outra aba) =====
+(function(){
+function stops(){const out=[];document.querySelectorAll('[data-note],[data-note-steps]').forEach(el=>{if(el.closest('#finPrev'))return;const st=el.dataset.noteSteps;if(st){st.split(',').forEach((k,i)=>out.push({el,key:k.trim(),step:i}))}else{out.push({el,key:el.dataset.note,step:-1});el.querySelectorAll('[data-note-mark]').forEach(m=>out.push({el:m,key:m.dataset.noteMark,step:-1}))}});return out}
+function titleOf(el){const h=el.querySelector('h1,h2,h3,.big,.mid');return h?h.textContent.replace(/\s+/g,' ').trim():''}
+function current(){const y=innerHeight*.5;let best=null,bh=1e12;document.querySelectorAll('[data-note],[data-note-alias],[data-note-steps]').forEach(el=>{if(el.closest('#finPrev'))return;const r=el.getBoundingClientRect();if(r.top<=y&&r.bottom>=y&&r.height<bh){best=el;bh=r.height}});
+ if(!best){// tela sem roteiro: usa a seção visível
+  const sec=[...document.querySelectorAll('body>section')].find(s=>{const r=s.getBoundingClientRect();return r.top<=y&&r.bottom>=y});return sec?{el:sec,key:null,step:-1}:null}
+ if(best.dataset.noteSteps){const ks=best.dataset.noteSteps.split(',');const st=[...best.querySelectorAll('.step')];let i=st.findIndex(s=>s.classList.contains('cur'));if(i<0)i=0;return{el:best,key:ks[Math.min(i,ks.length-1)].trim(),step:i}}
+ // seção fora da lista de roteiro mas visível por cima? verifica se a seção do centro é outra
+ const sec=[...document.querySelectorAll('body>section')].find(s=>{const r=s.getBoundingClientRect();return r.top<=y&&r.bottom>=y});if(sec&&!sec.contains(best)&&sec!==best)return{el:sec,key:null,step:-1};
+ if(best.dataset.noteAlias)return{el:best,key:best.dataset.noteAlias,step:-1};let mk=null;best.querySelectorAll('[data-note-mark]').forEach(m=>{if(m.getBoundingClientRect().top<=y)mk=m});if(mk)return{el:mk,key:mk.dataset.noteMark,step:-1};
+ return{el:best,key:best.dataset.note,step:-1}}
+function state(){const c=current();const L=stops();let idx=-1;if(c&&c.key)idx=L.findIndex(s=>s.key===c.key);
+ const num=idx>=0?String(idx+1).padStart(2,'0'):'';
+ let nx=null;if(idx>=0&&idx<L.length-1){const k=L[idx+1].key;nx={key:k,num:String(idx+2).padStart(2,'0'),t:titleOf(L[idx+1].el)}}
+ else if(c&&!c.key){const after=L.find(s=>s.el.compareDocumentPosition(c.el)&Node.DOCUMENT_POSITION_PRECEDING);if(after){const k=after.key;nx={key:k,num:String(L.indexOf(after)+1).padStart(2,'0'),t:titleOf(after.el)}}}
+ return{key:c?c.key||'':'',num,act:c?(c.el.dataset.act||''):'',t:c?titleOf(c.el):'',next:nx,total:L.length}}
+let ch=null;try{ch=new BroadcastChannel('baya-apresentador')}catch(e){}
+let last='';function send(force){let s;try{s=state()}catch(e){return}const sig=s.key+'|'+s.num+'|'+s.t;if(!force&&sig===last)return;last=sig;s.at=Date.now();try{ch&&ch.postMessage(s)}catch(e){}try{localStorage.setItem('baya-ap-state',JSON.stringify(s))}catch(e){}}
+let raf=0;addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;send(false)})},{passive:true});setInterval(()=>send(false),700);
+if(ch)ch.onmessage=e=>{if(e.data==='hello')send(true)};addEventListener('storage',e=>{if(e.key==='baya-ap-hello')send(true)});setTimeout(()=>send(true),800);
+})();
 
 // resultados ao vivo
 (function(){if(!(location.protocol==='file:'||/github\.io$/.test(location.hostname)))return;const keys=['bayer','lacada','ninho'],tot=document.getElementById('rtot'),box=document.getElementById('rbars');let API='';
